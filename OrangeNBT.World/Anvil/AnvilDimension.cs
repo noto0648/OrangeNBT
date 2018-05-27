@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using OrangeNBT.World;
+﻿using OrangeNBT.Data;
 using OrangeNBT.World.Core;
-using OrangeNBT.NBT;
+using System;
 using System.IO;
 
 namespace OrangeNBT.World.Anvil
@@ -15,7 +12,7 @@ namespace OrangeNBT.World.Anvil
         private AnvilEntityCollection _entities;
         private AnvilCache _cache;
 
-        public override IBlockAccess Blocks =>  _blocks;
+        public override IWorldAccess Blocks =>  _blocks;
 
         public override IEntityCollection Entities => _entities;
 

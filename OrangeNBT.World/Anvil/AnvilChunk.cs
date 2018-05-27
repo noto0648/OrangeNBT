@@ -1,4 +1,5 @@
-﻿using OrangeNBT.Helper;
+﻿using OrangeNBT.Data;
+using OrangeNBT.Helper;
 using OrangeNBT.NBT;
 using OrangeNBT.World.Core;
 using System;
@@ -21,7 +22,7 @@ namespace OrangeNBT.World.Anvil
         private byte[] _biomes = new byte[Width * Length];
         private int[] _heights = new int[Width * Length];
         private ChunkEntityCollection _entities;
-        private Dictionary<TilePos, TagCompound> _tileEntities;
+        private Dictionary<BlockPos, TagCompound> _tileEntities;
         private bool _isTerrainPopulated;
         private bool _isLightPopulated;
 
@@ -36,7 +37,7 @@ namespace OrangeNBT.World.Anvil
             _coord = coord;
             _manager = manager;
             _entities = new ChunkEntityCollection(new TagList());
-            _tileEntities = new Dictionary<TilePos, TagCompound>();
+            _tileEntities = new Dictionary<BlockPos, TagCompound>();
         }
 
         #region Processing
@@ -125,7 +126,7 @@ namespace OrangeNBT.World.Anvil
 
         public bool SetTileEntity(int x, int y, int z, TagCompound tag)
         {
-            TilePos pos = new TilePos(x, y, z);
+            BlockPos pos = new BlockPos(x, y, z);
             if (_tileEntities.ContainsKey(pos))
             {
                 _tileEntities[pos] = tag;
@@ -181,7 +182,7 @@ namespace OrangeNBT.World.Anvil
 
         public TagCompound GetTileEntity(int x, int y, int z)
         {
-            TilePos pos = new TilePos(x, y, z);
+            BlockPos pos = new BlockPos(x, y, z);
             if (_tileEntities.ContainsKey(pos))
             {
                 return _tileEntities[pos];
@@ -213,10 +214,10 @@ namespace OrangeNBT.World.Anvil
             c._isLightPopulated = level.GetBool("LightPopulated");
 
             //c.InhabitedTime = tag.GetLong("InhabitedTime");
-            
+
             TagList sections = (TagList)level["Sections"];
             c._sections = new AnvilSection[SectionsPerChunk];
-            for(int i = 0; i < sections.Count;i++)
+            for (int i = 0; i < sections.Count; i++)
             {
                 TagCompound sec = sections[i] as TagCompound;
                 if (sec == null)
@@ -242,7 +243,7 @@ namespace OrangeNBT.World.Anvil
                 int x = t.GetInt("x");
                 int y = t.GetInt("y");
                 int z = t.GetInt("z");
-                c._tileEntities.Add(new TilePos(x, y, z), t);
+                c._tileEntities.Add(new BlockPos(x, y, z), t);
             }
 
             return c;
@@ -268,7 +269,7 @@ namespace OrangeNBT.World.Anvil
             }
 
             TagList tiles = new TagList("TileEntities", TagType.Compound);
-            foreach(TagCompound c in _tileEntities.Values)
+            foreach (TagCompound c in _tileEntities.Values)
             {
                 tiles.Add(c);
             }
@@ -356,36 +357,5 @@ namespace OrangeNBT.World.Anvil
 
         #endregion
 
-        #region TilePos
-        private class TilePos
-        {
-            private int _x;
-            private int _y;
-            private int _z;
-            public int X { get { return _x; } set { _x = value; } }
-            public int Y { get { return _y; } set { _y = value; } }
-            public int Z { get { return _z; } set { _z = value; } }
-
-            public TilePos(int x, int y, int z)
-            {
-                _x = x;
-                _y = y;
-                _z = z;
-            }
-
-            public override int GetHashCode()
-            {
-                return _x ^ _y ^ _z;
-            }
-
-            public override bool Equals(object obj)
-            {
-                TilePos tile = obj as TilePos;
-                if (tile == null) return false;
-                return tile.X == X && tile.Y == Y && tile.Z == Z;
-            }
-        }
-
-        #endregion
     }
-    }
+}

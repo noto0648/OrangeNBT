@@ -12,12 +12,14 @@ namespace OrangeNBT.NBT.IO
 
         public static string ToJson(TagCompound tag, JsonOptions ops)
         {
-            return NBTJsonConverter.ToJson(tag, ops);
+            return NBTJsonSerializerFizzy.ToJson(tag, ops);
         }
 
-        public static TagCompound FromJson(string json)
+        public static TagCompound FromJson(string json, JsonEngine jsonEngine = JsonEngine.Accurate)
         {
-            return NBTJsonConverter.FromJson(json) as TagCompound;
+            if(jsonEngine == JsonEngine.Fuzzy)
+                return NBTJsonSerializerFizzy.FromJson(json) as TagCompound;
+            return NBTJsonSerializer.FromJson(json) as TagCompound;
         }
 
         public static void ToStream(Stream stream, TagCompound tag)

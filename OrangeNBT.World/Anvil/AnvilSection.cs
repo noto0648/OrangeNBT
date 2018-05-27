@@ -5,7 +5,7 @@ using System;
 
 namespace OrangeNBT.World.Anvil
 {
-    public class AnvilSection : IBlockAccess, ITagProvider<TagCompound>
+    public class AnvilSection : IWorldAccess, ITagProvider<TagCompound>
     {
         public const int Width = 16;
         public const int Height = 16;

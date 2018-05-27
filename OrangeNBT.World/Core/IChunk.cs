@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OrangeNBT.World.Core
 {
-    public interface IChunk: IBlockAccess
+    public interface IChunk: IWorldAccess
     {
         bool IsModified { get; set; }
         ChunkCoord Coord { get; }

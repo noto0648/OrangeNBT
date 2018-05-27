@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OrangeNBT.World.Core
 {
-    public interface IBlockManager : IBlockAccess
+    public interface IBlockManager : IWorldAccess
     {
         bool AutoLight { get; set; }
     }

@@ -6,5 +6,8 @@ namespace OrangeNBT.NBT.IO
     {
         public NBTException(string error)
             : base(error) { }
+
+        public NBTException(string error, string json, int index)
+    : base(error) { }
     }
 }

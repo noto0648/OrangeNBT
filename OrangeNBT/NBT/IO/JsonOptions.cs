@@ -6,12 +6,12 @@
         public static JsonOptions Default { get { return _default; } }
 
         private string _quotation = "\"";
-        public string StringQuotationMark { get { return _quotation; } set { _quotation = value; } }
+        public string Quotation { get { return _quotation; } set { _quotation = value; } }
 
-        private string _keyQuotation = "";
-        public string KeyQuotationMark { get { return _keyQuotation; } set { _keyQuotation = value; } }
+        private readonly string[] _digits = new string[] { "", "b", "s", "", "l", "f", "d", "", "", "", "", "", "" };
 
-        private string[] _digits = new string[] { "", "b", "s", "", "l", "f", "d", "", "", "", "", "", "" };
+        private bool _escape = true;
+        public bool Escape { get { return _escape; } set { _escape = value; } }
 
         public JsonOptions() { }
 
@@ -20,6 +20,25 @@
             if ((int)type < _digits.Length && !string.IsNullOrEmpty(_digits[(int)type]))
                 return _digits[(int)type];
             return string.Empty;
+        }
+
+        internal string GetKeyText(string name)
+        {
+            return string.Format("{0}{1}{0}:", _quotation, EscapeString(name));
+        }
+
+        internal string EscapeString(string str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return string.Empty;
+            str = str.Replace("\\", "\\\\");
+
+            if (str.Contains(_quotation))
+            {
+                str = str.Replace(_quotation, "\\" + _quotation);
+            }
+
+            return str;
         }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using OrangeNBT.NBT;
+using System.Collections.Generic;
+
 namespace OrangeNBT.Data
 {
     public interface IBlock
@@ -9,6 +11,12 @@ namespace OrangeNBT.Data
 
         bool HasTileEntity { get; }
 
+        int Id { get; }
+
         TagCompound BuildTileEntity();
+
+        string GetName(int metadata);
+
+        IDictionary<string, string> GetParamerters(int metadata);
     }
 }

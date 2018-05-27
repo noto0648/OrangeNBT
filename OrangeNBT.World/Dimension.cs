@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using OrangeNBT.Data;
 using OrangeNBT.World.Core;
+using System;
 
 namespace OrangeNBT.World
 {
@@ -13,7 +12,7 @@ namespace OrangeNBT.World
 
         public bool IsInfinity { get { return true; } }
 
-        public abstract IBlockAccess Blocks { get; }
+        public abstract IWorldAccess Blocks { get; }
 
         public abstract IEntityCollection Entities { get; }
 
