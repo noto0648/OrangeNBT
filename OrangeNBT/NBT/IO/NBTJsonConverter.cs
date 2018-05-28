@@ -494,9 +494,7 @@ namespace OrangeNBT.NBT.IO
             int index = 0;
             foreach (string key in tag.Keys)
             {
-                sb.Append(ops.KeyQuotationMark);
-                sb.Append(key.Replace("\"", "\\\\\""));
-                sb.Append(ops.KeyQuotationMark);
+                sb.Append(ops.GetKeyText(key));
                 sb.Append(':');
                 sb.Append(GetJsonValue(tag[key], ops));
 
@@ -557,7 +555,7 @@ namespace OrangeNBT.NBT.IO
             }
             if (tag.TagType == TagType.String)
             {
-                return ops.StringQuotationMark + ((TagString)tag).Value + ops.StringQuotationMark;
+                return ops.Quotation + ops.EscapeString(((TagString)tag).Value) + ops.Quotation;
             }
             if (tag.TagType == TagType.ByteArray)
             {
