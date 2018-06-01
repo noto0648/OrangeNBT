@@ -47,14 +47,13 @@ namespace OrangeNBT.World.Anvil
         {
             AnvilWorld world = new AnvilWorld(directory);
             string[] directories = Directory.GetDirectories(directory);
-            for(int i = 0; i < directory.Length;i++)
+            for(int i = 0; i < directories.Length;i++)
             {
                 string dir = Path.GetFileName(directories[i]);
                 if(dir.StartsWith("DIM"))
                 {
-                    int no;
                     string id = dir.Replace("DIM", "");
-                    if(int.TryParse(id, out no))
+                    if(int.TryParse(id, out int no))
                     {
                         world._dimensions.Add(no, new AnvilDimension(directories[i]));
                     }
