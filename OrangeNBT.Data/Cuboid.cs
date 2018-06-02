@@ -1,6 +1,6 @@
 ﻿namespace OrangeNBT.Data
 {
-    public class Cuboid
+    public struct Cuboid
     {
         public static readonly Cuboid Empty = new Cuboid();
 
@@ -26,8 +26,6 @@
         public int Width { get { return _width; } set { _width = value; } }
         public int Height { get { return _height; } set { _height = value; } }
         public int Length { get { return _length; } set { _length = value; } }
-
-        public Cuboid() { }
 
         public Cuboid(int x, int y, int z, int width, int height, int length)
         {
@@ -56,14 +54,14 @@
 
         public override bool Equals(object obj)
         {
-            Cuboid c = obj as Cuboid;
-            if (c == null) return false;
+            if (!(obj is Cuboid))
+                return false;
+            Cuboid c = (Cuboid)obj;
             return X == c.X && Y == c.Y && Z == c.Z && c.Width == Width && c.Height == Height && Length == c.Length;
         }
         
         public static bool operator ==(Cuboid a, Cuboid b)
         {
-            if (a == null || b == null) return false;
             return a.X == b.X && a.Y == b.Y && a.Z == b.Z && a.Width == b.Width && a.Height == b.Height && a.Length == b.Length;
         }
 

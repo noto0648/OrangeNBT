@@ -20,6 +20,8 @@
 
         public override bool Equals(object obj)
         {
+            if (!(obj is BlockPos))
+                return false;
             BlockPos pos = (BlockPos)obj;
             return (pos.X == X && pos.Y == Y && pos.Z == Z);
         }
