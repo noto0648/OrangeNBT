@@ -1,12 +1,10 @@
 ﻿namespace OrangeNBT.Data
 {
-    public class BlockPos
+    public struct BlockPos
     {
         public int X { get; set; }
         public int Y { get; set; }
         public int Z { get; set; }
-
-        public BlockPos() { }
 
         public BlockPos(int x, int y, int z)
         {
@@ -22,8 +20,8 @@
 
         public override bool Equals(object obj)
         {
-            BlockPos pos = obj as BlockPos;
-            return pos == null ? false : (pos.X == X && pos.Y == Y && pos.Z == Z);
+            BlockPos pos = (BlockPos)obj;
+            return (pos.X == X && pos.Y == Y && pos.Z == Z);
         }
 
         public override string ToString()
@@ -38,7 +36,6 @@
 
         public static bool operator ==(BlockPos a, BlockPos b)
         {
-            if (a == null || b == null) return false;
             return a.X == b.X && a.Y == b.Y && a.Z == b.Z;
         }
 
