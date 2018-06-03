@@ -18,6 +18,15 @@ namespace OrangeNBT.World.Anvil
             _baseDirectory = directory;
         }
 
+        public Dimension AddDimension(int id)
+        {
+            if (_dimensions.ContainsKey(id))
+                return _dimensions[id];
+            AnvilDimension dim = new AnvilDimension(_baseDirectory + Path.DirectorySeparatorChar + "DIM" + id);
+            _dimensions.Add(id, dim);
+            return dim;
+        }
+
         public void Save()
         {
             foreach (AnvilDimension d in _dimensions.Values)

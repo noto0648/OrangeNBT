@@ -34,7 +34,6 @@ namespace OrangeNBT.World.Anvil
             return _cache.Fetch(coord);
         }
 
-
         public IChunk CreateChunk(ChunkCoord coord)
         {
             if (_cache.Contains(coord))
@@ -65,6 +64,11 @@ namespace OrangeNBT.World.Anvil
 
         private IEnumerable<RegionFile> ListRegions()
         {
+            if (!Directory.Exists(_regionDirectory))
+            {
+                Directory.CreateDirectory(_regionDirectory);
+            }
+
             string[] regions = Directory.GetFiles(_regionDirectory, "*.mca");
             string parentDirectory = _regionDirectory + Path.DirectorySeparatorChar;
             for (int i = 0; i < regions.Length; i++)
@@ -130,7 +134,7 @@ namespace OrangeNBT.World.Anvil
 
         public void Dispose()
         {
-            if (_cache == null)
+            if (_regionCache == null)
                 return;
 
             _cache.Clear();
@@ -160,7 +164,19 @@ namespace OrangeNBT.World.Anvil
                 }
             }
         }
-        
 
+        public IEnumerable<ChunkCoord> ListAllCoords()
+        {
+            foreach (RegionFile r in ListRegions())
+            {
+                for (int z = 0; z < 32; z++)
+                {
+                    for (int x = 0; x < 32; x++)
+                    {
+                        yield return new ChunkCoord(r.Coord.X * 32 + x, r.Coord.Z * 32 + z);
+                    }
+                }
+            }
+        }
     }
 }

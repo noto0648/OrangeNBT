@@ -10,5 +10,7 @@ namespace OrangeNBT.World.Core
 
         IEnumerable<IChunk> ListAllChunks();
 
+        IEnumerable<ChunkCoord> ListAllCoords();
+
     }
 }

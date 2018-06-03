@@ -22,10 +22,15 @@ namespace OrangeNBT.World
             }
         }
 
-        public ChunkCoord(int x, int y)
+        public ChunkCoord(int x, int z)
         {
             _x = x;
-            _z = y;
+            _z = z;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("({0}, {1})", _x, _z);
         }
 
         public override int GetHashCode()
