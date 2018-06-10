@@ -132,6 +132,13 @@ namespace OrangeNBT.World.Anvil
             
         }
 
+		public bool Contains(ChunkCoord coord)
+		{
+			RegionFile rf = FetchRegion(coord.RegionCoord);
+			if (rf == null) return false;
+			return rf.ContainsChunk(new ChunkCoord(coord.X & 31, coord.Z & 31));
+		}
+
         public void Dispose()
         {
             if (_regionCache == null)
@@ -148,21 +155,13 @@ namespace OrangeNBT.World.Anvil
 
         public IEnumerable<IChunk> ListAllChunks()
         {
-            foreach(RegionFile r in ListRegions())
-            {
-                for(int z = 0; z < 32; z++)
-                {
-                    for(int x = 0; x < 32; x++)
-                    {
-                        //IChunk chunk = LoadChunk);
-                        IChunk chunk = GetChunk(new ChunkCoord(r.Coord.X * 32 + x, r.Coord.Z * 32 + z));
-                        if (chunk == null)
-                            continue;
-
-                        yield return chunk;
-                    }
-                }
-            }
+			foreach(ChunkCoord ck in ListAllCoords())
+			{
+				IChunk chunk = GetChunk(ck);
+				if (chunk == null)
+					continue;
+				yield return chunk;
+			}
         }
 
         public IEnumerable<ChunkCoord> ListAllCoords()
@@ -173,7 +172,9 @@ namespace OrangeNBT.World.Anvil
                 {
                     for (int x = 0; x < 32; x++)
                     {
-                        yield return new ChunkCoord(r.Coord.X * 32 + x, r.Coord.Z * 32 + z);
+						ChunkCoord ck = new ChunkCoord(r.Coord.X * 32 + x, r.Coord.Z * 32 + z);
+						if(Contains(ck))
+							yield return ck;
                     }
                 }
             }

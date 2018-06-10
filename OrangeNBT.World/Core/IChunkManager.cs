@@ -12,5 +12,6 @@ namespace OrangeNBT.World.Core
 
         IEnumerable<ChunkCoord> ListAllCoords();
 
+		bool Contains(ChunkCoord coord);
     }
 }

@@ -53,17 +53,6 @@ namespace OrangeNBT.World
                 {
                     WriteEmpty();
                     WriteEmpty();
-                    /*
-                    byte[] int0 = BitConverter.GetBytes(0);
-                    for (int i = 0; i < SectorInts; ++i)
-                    {
-                        _stream.Write(int0, 0, 4);
-                    }
-                    for (int i = 0; i < SectorInts; ++i)
-                    {
-                        _stream.Write(int0, 0, 4);
-                    }
-                    */
                     _stream.Flush();
                     _sizeDelta += SectorBytes * 2;
                 }
@@ -113,10 +102,6 @@ namespace OrangeNBT.World
 
         public Stream ReadChunk(ChunkCoord coord)
         {
-            //if (this.OutOfBounds(x, z))
-            //{
-            //    return null;
-            //}
 
             lock (_file)
             {
@@ -280,9 +265,9 @@ namespace OrangeNBT.World
             }
         }
 
-        private int GetOffset(int x, int y)
+        private int GetOffset(int x, int z)
         {
-            return _offsets[x + y * 32];
+            return _offsets[x + z * 32];
         }
 
         private void SetOffset(int x, int z, int offset)
@@ -339,7 +324,6 @@ namespace OrangeNBT.World
                 _stream.Seek(sectorNumber * SectorInts, SeekOrigin.Begin);
                 for (int i = 0; i < sectorsAllocated; i++)
                 {
-                    //_stream.Write(_emptySector, 0, SectorInts);
                     WriteEmpty();
                 }
                 SetOffset(x, z, 0);
@@ -392,17 +376,6 @@ namespace OrangeNBT.World
                     return;
                 }
                 _region.WriteImpl(_x, _z, segment.Array, (int)this.Length, _timestamp);
-
-                //if (_timestamp == null)
-                //{
-
-                //    region.WriteImpl(x, z, t.Array, (int)this.Length);
-                //}
-                //else
-                //{
-                //}
-                //region.Write(x, z, this.GetBuffer(), (int)this.Length);
-                //base.Dispose();
             }
 
         }
