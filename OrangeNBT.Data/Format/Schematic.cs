@@ -87,7 +87,7 @@ namespace OrangeNBT.Data.Format
             };
         }
 
-        public static Schematic LoadFromNBT(TagCompound root)
+        public static Schematic FromNBT(TagCompound root)
         {
             if ((!root.ContainsKey("Width")) || (!root.ContainsKey("Height")) || (!root.ContainsKey("Length")) || (!root.ContainsKey("Materials")) || (!root.ContainsKey("Blocks")) || (!root.ContainsKey("Data")))
             {
@@ -124,65 +124,6 @@ namespace OrangeNBT.Data.Format
                 obj._entities = new EntityCollection(root["Entities"] as TagList);
             }
             return obj;
-        }
-
-        class EntityCollection : IEntityCollection, ITagProvider<TagList>
-        {
-            private TagList _list;
-
-            public EntityCollection(TagList tagList)
-            {
-                _list = tagList;
-            }
-
-            EntityCollection()
-            {
-                _list = new TagList("Entities");
-            }
-
-            public void Add(TagCompound tag)
-            {
-                Add(tag, false);
-            }
-
-            public void Add(TagCompound tag, bool safe)
-            {
-                if (safe && Entity.IsEntityTag(tag))
-                    _list.Add(tag);
-                if (!safe)
-                    _list.Add(tag);
-            }
-
-            public TagList BuildTag()
-            {
-                return _list;
-            }
-
-            public IEnumerator<TagCompound> GetEnumerator()
-            {
-                foreach (TagCompound e in _list)
-                    yield return e;
-            }
-
-            public IEnumerable<TagCompound> GetWithin(Cuboid area)
-            {
-                foreach (TagCompound e in _list)
-                {
-                    Position p = Entity.GetPosition(e);
-                    if (area.Contains(p.X, p.Y, p.Z))
-                        yield return e;
-                }
-            }
-
-            public void Remove(TagCompound tag)
-            {
-                _list.Remove(tag);
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return _list.GetEnumerator();
-            }
         }
     }
 }

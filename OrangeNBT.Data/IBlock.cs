@@ -13,10 +13,15 @@ namespace OrangeNBT.Data
 
         int Id { get; }
 
-        TagCompound BuildTileEntity();
+		string Name { get; }
+
+		TagCompound BuildTileEntity();
 
         string GetName(int metadata);
 
-        IDictionary<string, string> GetParamerters(int metadata);
-    }
+        IDictionary<string, string> GetProperties(int metadata);
+
+		int GetMetadata(IDictionary<string, string> properties);
+
+	}
 }

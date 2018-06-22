@@ -9,5 +9,8 @@ namespace OrangeNBT.Data
 		string Version { get; }
 
 		IBlock GetBlock(int id);
-    }
+
+		IBlock GetBlock(string id);
+
+	}
 }

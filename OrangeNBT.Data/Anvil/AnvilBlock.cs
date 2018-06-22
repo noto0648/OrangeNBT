@@ -1,7 +1,5 @@
-﻿using System;
+﻿using OrangeNBT.NBT;
 using System.Collections.Generic;
-using System.Text;
-using OrangeNBT.NBT;
 
 namespace OrangeNBT.Data.Anvil
 {
@@ -21,6 +19,10 @@ namespace OrangeNBT.Data.Anvil
 		public bool HasTileEntity => _hasTileEntity;
 
 		public int Id => _id;
+
+		public string Name => GetName(0);
+
+		private Metadata[] _metadatas;
 
 		public AnvilBlock(int id, string name)
 		{
@@ -50,6 +52,11 @@ namespace OrangeNBT.Data.Anvil
 
 		#endregion
 
+		public void SetMetadataInfo(int meta, string str, IDictionary<string, string> args)
+		{
+			_metadatas[meta] = new Metadata() { Id = str, Data = meta, Properties = args };
+		}
+
 		public TagCompound BuildTileEntity()
 		{
 			if (_hasTileEntity)
@@ -59,12 +66,54 @@ namespace OrangeNBT.Data.Anvil
 
 		public string GetName(int metadata)
 		{
+			if (metadata < _metadatas.Length &&  _metadatas[metadata] != null)
+				return string.Format("minecraft:{0}", _metadatas[metadata].Id);
 			return string.Format("minecraft:{0}", _name);
 		}
 
-		public IDictionary<string, string> GetParamerters(int metadata)
+		public IDictionary<string, string> GetProperties(int metadata)
 		{
-			throw new NotImplementedException();
+			if (metadata < _metadatas.Length && _metadatas[metadata] != null)
+				return _metadatas[metadata].Properties;
+			if (_metadatas.Length > 0 && _metadatas[0] != null)
+				return _metadatas[0].Properties;
+
+			return new Dictionary<string, string>();
+		}
+
+		public int GetMetadata(IDictionary<string, string> properties)
+		{
+			for(int i = 0; i < _metadatas.Length; i++)
+			{
+				if(_metadatas[i] != null)
+				{
+					if (_metadatas[i].Properties == null || _metadatas[i].Properties.Count != properties.Count)
+					{
+						return 0;
+					}
+					bool breakFlag = false;
+					foreach(string key in _metadatas[i].Properties.Keys)
+					{
+						if (!properties.ContainsKey(key) || properties[key] != _metadatas[i].Properties[key])
+						{
+							breakFlag = true;
+							break;
+						}
+					}
+					if(!breakFlag)
+					{
+						return i;
+					}
+				}
+			}
+			return 0;
+		}
+
+		private class Metadata
+		{
+			public int Data { get; set; }
+			public string Id { get; set; }
+			public IDictionary<string, string> Properties {get;set;}
 		}
 	}
 }

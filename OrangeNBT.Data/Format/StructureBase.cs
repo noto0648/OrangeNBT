@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using OrangeNBT.NBT;
 
 namespace OrangeNBT.Data.Format
 {
@@ -25,6 +27,63 @@ namespace OrangeNBT.Data.Format
             : this(cuboid.Width, cuboid.Height, cuboid.Length)
         { }
 
+		public class EntityCollection : IEntityCollection, ITagProvider<TagList>
+		{
+			private TagList _entities;
 
-    }
+			public EntityCollection(TagList tagList)
+			{
+				_entities = tagList;
+			}
+
+			public EntityCollection()
+			{
+				_entities = new TagList("Entities");
+			}
+
+			public void Add(TagCompound tag)
+			{
+				_entities.Add(tag);
+			}
+
+			public void Add(TagCompound tag, bool safe)
+			{
+				if ((safe && Entity.IsEntityTag(tag)) || !safe)
+					Add(tag);
+			}
+
+			public TagList BuildTag()
+			{
+				return _entities;
+			}
+
+			public IEnumerator<TagCompound> GetEnumerator()
+			{
+				return (IEnumerator<TagCompound>)_entities.GetEnumerator();
+			}
+
+			public IEnumerable<TagCompound> GetWithin(Cuboid area)
+			{
+				foreach (TagCompound e in _entities)
+				{
+					Position pos = Entity.GetPosition(e);
+					if (area.Contains(pos.X, pos.Y, pos.Z))
+					{
+						yield return e;
+					}
+				}
+			}
+
+			public void Remove(TagCompound tag)
+			{
+				_entities.Remove(tag);
+			}
+
+			IEnumerator IEnumerable.GetEnumerator()
+			{
+				return _entities.GetEnumerator();
+			}
+		}
+
+	}
 }
