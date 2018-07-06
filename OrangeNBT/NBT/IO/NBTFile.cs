@@ -41,11 +41,11 @@ namespace OrangeNBT.NBT.IO
             bool compress = false;
             using (NBTBinaryReader br = new NBTBinaryReader(stream))
             {
-                br.BaseStream.Position = 0;
+                long startPos = br.BaseStream.Position;
                 byte firstByte = br.ReadByte();
                 byte secondByte = br.ReadByte();
                 compress = (firstByte == 0x1F) && (secondByte == 0x8B);
-                br.BaseStream.Position = 0;
+                br.BaseStream.Position = startPos;
                 return FromStream(stream, compress);
             }
         }

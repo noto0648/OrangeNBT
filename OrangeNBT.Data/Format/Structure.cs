@@ -86,7 +86,7 @@ namespace OrangeNBT.Data.Format
 					ps.Add(key, tag.GetString(key));
 				}
 			}
-			IBlock block = GameData.Data.GetBlock(name);
+			IBlock block = GameData.JavaEdition.GetBlock(name);
 			int meta = block.GetMetadata(ps);
 			return new BlockSet(name, meta);
 		}
@@ -205,7 +205,7 @@ namespace OrangeNBT.Data.Format
 			public TagCompound BuildTag()
 			{
 				TagCompound compound = new TagCompound() { new TagString("Name", this.Name) };
-				IBlock blockInfo = GameData.Data.GetBlock(Name);
+				IBlock blockInfo = GameData.JavaEdition.GetBlock(Name);
 				IDictionary<string, string> properties = blockInfo.GetProperties(Metadata);
 				if (properties.Count > 0)
 				{
@@ -239,7 +239,7 @@ namespace OrangeNBT.Data.Format
 				{
 					if (_blockId == -1)
 					{
-						IBlock blockInfo = GameData.Data.GetBlock(BlockName);
+						IBlock blockInfo = GameData.JavaEdition.GetBlock(BlockName);
 						if (blockInfo != null)
 						{
 							_blockId = blockInfo.Id;
@@ -252,7 +252,7 @@ namespace OrangeNBT.Data.Format
 					try
 					{
 						_blockId = value;
-						IBlock blockInfo = GameData.Data.GetBlock(_blockId);
+						IBlock blockInfo = GameData.JavaEdition.GetBlock(_blockId);
 
 						if (blockInfo != null)
 						{

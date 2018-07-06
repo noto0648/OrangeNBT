@@ -3195,5 +3195,15 @@ namespace OrangeNBT.Data.Anvil
 			}
 			return null;
 		}
+
+		public IBlock GetBlockFromRuntimeID(int id)
+		{
+			throw new NotSupportedException();
+		}
+
+		public int GetMetadataFromRuntimeID(int id)
+		{
+			throw new NotSupportedException();
+		}
 	}
 }

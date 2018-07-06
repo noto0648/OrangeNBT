@@ -12,5 +12,8 @@ namespace OrangeNBT.Data
 
 		IBlock GetBlock(string id);
 
+		IBlock GetBlockFromRuntimeID(int id);
+
+		int GetMetadataFromRuntimeID(int id);
 	}
 }
