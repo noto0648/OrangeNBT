@@ -13,19 +13,19 @@ namespace OrangeNBT.Data.Format
 		public int DataVersion { get { return _dataVersion; } set { _dataVersion = value; } }
 		public string Author { get { return _author; } set { _author = value; } }
 
-		private BlockSet[,,] _blockList;
+		private BlockKey[,,] _blockList;
 		private IEntityCollection _entityList;
 
 		public Structure(int width, int height, int length)
 			:base(width, height, length)
 		{
-			_blockList = new BlockSet[width, height, length];
+			_blockList = new BlockKey[width, height, length];
 
 			for (int x = 0; x < _width; x++)
 				for (int y = 0; y < _height; y++)
 					for (int z = 0; z < _length; z++)
 					{
-						_blockList[x, y, z] = new BlockSet("minecraft:air", 0) { X = x, Y = y, Z = z };
+						_blockList[x, y, z] = new BlockKey("minecraft:air", 0) { X = x, Y = y, Z = z };
 					}
 			_entityList = new EntityCollection();
 		}
@@ -36,26 +36,18 @@ namespace OrangeNBT.Data.Format
 			_dataVersion = version;
 		}
 
-		private BlockSet GetAt(int x, int y, int z)
+		private BlockKey GetAt(int x, int y, int z)
 		{
 			return _blockList[x, y, z];
 		}
 
-		public int GetBlockData(int x, int y, int z)
-		{
-			return GetAt(x, y, z).Metadata;
-		}
-
-		public int GetBlockId(int x, int y, int z)
-		{
-			return GetAt(x, y, z).BlockId;
-		}
 
 		public TagCompound GetTileEntity(int x, int y, int z)
 		{
 			return GetAt(x, y, z).NBT;
 		}
 
+		/*
 		public bool SetBlockId(int x, int y, int z, int id)
 		{
 			GetAt(x, y, z).BlockId = id;
@@ -67,6 +59,7 @@ namespace OrangeNBT.Data.Format
 			GetAt(x, y, z).Metadata = data;
 			return true;
 		}
+		*/
 
 		public bool SetTileEntity(int x, int y, int z, TagCompound tag)
 		{
@@ -74,7 +67,7 @@ namespace OrangeNBT.Data.Format
 			return true;
 		}
 
-		private static BlockSet GetFromCompound(TagCompound root)
+		private static BlockKey GetFromCompound(TagCompound root)
 		{
 			Dictionary<string, string> ps = new Dictionary<string, string>();
 			string name = root.GetString("Name");
@@ -88,7 +81,7 @@ namespace OrangeNBT.Data.Format
 			}
 			IBlock block = GameData.JavaEdition.GetBlock(name);
 			int meta = block.GetMetadata(ps);
-			return new BlockSet(name, meta);
+			return new BlockKey(name, meta);
 		}
 
 		public static Structure FromNBT(TagCompound root)
@@ -115,7 +108,7 @@ namespace OrangeNBT.Data.Format
 				if (statue >= palette.Count) continue;
 
 				TagCompound cmd = palette[statue] as TagCompound;
-				BlockSet block = GetFromCompound(cmd);
+				BlockKey block = GetFromCompound(cmd);
 
 				TagList pos = btag["pos"] as TagList;
 				if (pos != null && pos.Count == 3)
@@ -155,7 +148,7 @@ namespace OrangeNBT.Data.Format
 				for (int y = 0; y < _height; y++)
 					for (int z = 0; z < _length; z++)
 					{
-						BlockSet set = GetAt(x, y, z);
+						BlockKey set = GetAt(x, y, z);
 						PaletteObj plt = new PaletteObj() { Name = set.BlockName, Metadata = set.Metadata };
 						if (!palette.Contains(plt))
 						{
@@ -184,6 +177,20 @@ namespace OrangeNBT.Data.Format
 			TagList size = new TagList("size") { new TagInt(_width), new TagInt(_height), new TagInt(_length) };
 			TagCompound root = new TagCompound() { new TagInt("DataVersion", _dataVersion), new TagString("author", _author), paletteTag, blocks, entities, size };
 			return root;
+		}
+
+		public BlockSet GetBlock(int x, int y, int z)
+		{
+			BlockKey key = GetAt(x, y, z);
+			return new BlockSet(GameData.JavaEdition.GetBlock(key.BlockName), key.Metadata);
+		}
+
+		public bool SetBlock(int x, int y, int z, BlockSet block)
+		{
+			BlockKey key = GetAt(x, y, z);
+			key.BlockName = block.Name;
+			key.Metadata = block.Metadata;
+			return true;
 		}
 
 		private class PaletteObj : ITagProvider<TagCompound>
@@ -221,7 +228,7 @@ namespace OrangeNBT.Data.Format
 			}
 		}
 
-		private class BlockSet : ITagProvider<TagCompound>
+		private class BlockKey : ITagProvider<TagCompound>
 		{
 			public int X { get; set; }
 			public int Y { get; set; }
@@ -231,8 +238,9 @@ namespace OrangeNBT.Data.Format
 			public int Metadata { get; set; }
 			public TagCompound NBT { get; set; }
 
-			private int _blockId = -1;
+			//private int _blockId = -1;
 
+			/*
 			public int BlockId
 			{
 				get
@@ -266,16 +274,18 @@ namespace OrangeNBT.Data.Format
 					}
 				}
 			}
-			public BlockSet(string id, int meta)
+			*/
+
+			public BlockKey(string id, int meta)
 				: this(0, 0, 0, id, meta) { }
 
-			public BlockSet(string id, int meta, TagCompound nbt)
+			public BlockKey(string id, int meta, TagCompound nbt)
 				: this(0, 0, 0, id, meta, nbt) { }
 
-			public BlockSet(int x, int y, int z, string id, int meta)
+			public BlockKey(int x, int y, int z, string id, int meta)
 				: this(x, y, z, id, meta, null) { }
 
-			protected BlockSet(int x, int y, int z, string id, int meta, TagCompound nbt)
+			protected BlockKey(int x, int y, int z, string id, int meta, TagCompound nbt)
 			{
 				this.X = x;
 				this.Y = y;
@@ -287,15 +297,15 @@ namespace OrangeNBT.Data.Format
 
 			public override int GetHashCode()
 			{
-				return BlockId.GetHashCode();
+				return BlockName.GetHashCode();
 			}
 
 			public override bool Equals(object obj)
 			{
-				BlockSet bs = obj as BlockSet;
+				BlockKey bs = obj as BlockKey;
 				if (bs != null)
 				{
-					bool flag = (this.BlockId == bs.BlockId) && (bs.Metadata == this.Metadata);
+					bool flag = (this.BlockName == bs.BlockName) && (bs.Metadata == this.Metadata);
 					if ((this.Y < 0) && (bs.Y < 0))
 					{
 						return flag;
@@ -305,7 +315,7 @@ namespace OrangeNBT.Data.Format
 				return false;
 			}
 
-			public static BlockSet FromNBT(TagCompound nbt)
+			public static BlockKey FromNBT(TagCompound nbt)
 			{
 				string id = nbt.GetString("Block");
 				int meta = 0;
@@ -320,9 +330,9 @@ namespace OrangeNBT.Data.Format
 				if (nbt.ContainsKey("TagData"))
 				{
 					TagCompound tagCompound = nbt["TagData"] as TagCompound;
-					return new BlockSet(id, meta, tagCompound);
+					return new BlockKey(id, meta, tagCompound);
 				}
-				return new BlockSet(id, meta);
+				return new BlockKey(id, meta);
 			}
 
 			public TagCompound BuildTag()

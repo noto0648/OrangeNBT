@@ -11,26 +11,25 @@ namespace OrangeNBT.World.Anvil
     public class AnvilChunk : IChunk, ITagProvider<TagCompound>
     {
         public const int SectionsPerChunk = 16;
-
         public const int Width = AnvilSection.Width;
         public const int Height = SectionsPerChunk * AnvilSection.Height;
         public const int Length = AnvilSection.Length;
 
-        private AnvilSection[] _sections = new AnvilSection[SectionsPerChunk];
-        private readonly ChunkCoord _coord;
-        private bool _isModified;
-        private byte[] _biomes = new byte[Width * Length];
+        protected AnvilSection[] _sections = new AnvilSection[SectionsPerChunk];
+		protected readonly ChunkCoord _coord;
+		protected bool _isModified;
+		protected int[] _biomes = new int[Width * Length];
         private int[] _heights = new int[Width * Length];
-        private ChunkEntityCollection _entities;
-        private Dictionary<BlockPos, TagCompound> _tileEntities;
-        private bool _isTerrainPopulated;
-        private bool _isLightPopulated;
+		protected ChunkEntityCollection _entities;
+		protected Dictionary<BlockPos, TagCompound> _tileEntities;
+		private bool _isTerrainPopulated;
+		private bool _isLightPopulated;
 
         public ChunkEntityCollection Entities { get { return _entities; } }
         public bool IsModified { get { return _isModified; } set { _isModified = value; } }
         public ChunkCoord Coord { get { return _coord; } }
 
-        private readonly AnvilChunkManager _manager;
+		protected readonly AnvilChunkManager _manager;
 
         public AnvilChunk(AnvilChunkManager manager, ChunkCoord coord)
         {
@@ -51,7 +50,7 @@ namespace OrangeNBT.World.Anvil
                 {
                     for (int y = Height - 1; y >= 0; y--)
                     {
-                        if (GetBlockId(x, y, z) != 0)
+                        if (!GetBlock(x, y, z).IsAir)	
                         {
                             SetHeight(x, z, y);
                             break;
@@ -72,28 +71,20 @@ namespace OrangeNBT.World.Anvil
 
             if (section == null && create)
             {
-                section = new AnvilSection(sectionY, true);
+                section = CreateNewSection(sectionY, true);
                 _sections[sectionY] = section;
             }
             return section;
         }
-
-        public bool SetBlockId(int x, int y, int z, int id)
+		
+        public bool SetBlock(int x, int y, int z, BlockSet block)
         {
             AnvilSection section = GetSection(y, true);
             int blockY = y % AnvilSection.Height;
             _isModified = true;
-            return section.SetBlockId(x, blockY, z, id);
+            return section.SetBlock(x, blockY, z, block);
         }
-
-        public bool SetData(int x, int y, int z, int data)
-        {
-            AnvilSection section = GetSection(y, true);
-            int blockY = y % AnvilSection.Height;
-            _isModified = true;
-            return section.SetData(x, blockY, z, data);
-        }
-
+		
         public bool SetBlockLight(int x, int y, int z, int light)
         {
             AnvilSection section = GetSection(y, true);
@@ -142,18 +133,11 @@ namespace OrangeNBT.World.Anvil
             return true;
         }
 
-        public int GetBlockId(int x, int y, int z)
+        public BlockSet GetBlock(int x, int y, int z)
         {
             AnvilSection section = GetSection(y, true);
             int blockY = y % AnvilSection.Height;
-            return section.GetBlockId(x, blockY, z);
-        }
-
-        public int GetBlockData(int x, int y, int z)
-        {
-            AnvilSection section = GetSection(y, true);
-            int blockY = y % AnvilSection.Height;
-            return section.GetBlockData(x, blockY, z);
+            return section.GetBlock(x, blockY, z);
         }
 
         public int GetSkyLight(int x, int y, int z)
@@ -194,6 +178,11 @@ namespace OrangeNBT.World.Anvil
 
         #region IO
 
+		protected virtual AnvilSection CreateNewSection(int y, bool skylight)
+		{
+			return new AnvilSectionClassic(y, skylight);
+		}
+
         public static AnvilChunk Load(AnvilChunkManager manager, TagCompound compound)
         {
             /**
@@ -210,12 +199,23 @@ namespace OrangeNBT.World.Anvil
             AnvilChunk c = new AnvilChunk(manager, new ChunkCoord(cx, cy));
 
             c._heights = level.GetIntArray("HeightMap");
-            c._isTerrainPopulated = level.GetBool("TerrainPopulated");
-            c._isLightPopulated = level.GetBool("LightPopulated");
+			bool isTerrainPopulated= level.GetBool("TerrainPopulated");
+			bool isLightPopulated = level.GetBool("LightPopulated");
 
-            //c.InhabitedTime = tag.GetLong("InhabitedTime");
+			//if(isTerrainPopulated && isLightPopulated)
+			//{
+			//	c._status = ChunkStatus.Lighted;
+			//}
+			//else if(isTerrainPopulated)
+			//{
+			//	c._status = ChunkStatus.Carved;
+			//}
+			c._isTerrainPopulated = level.GetBool("TerrainPopulated");
+			c._isLightPopulated = level.GetBool("LightPopulated");
 
-            TagList sections = (TagList)level["Sections"];
+			//c.InhabitedTime = tag.GetLong("InhabitedTime");
+
+			TagList sections = (TagList)level["Sections"];
             c._sections = new AnvilSection[SectionsPerChunk];
             for (int i = 0; i < sections.Count; i++)
             {
@@ -223,15 +223,18 @@ namespace OrangeNBT.World.Anvil
                 if (sec == null)
                     continue;
 
-                c._sections[i] = new AnvilSection(sec.GetByte("Y"), true);
+                c._sections[i] = new AnvilSectionClassic(sec.GetByte("Y"), true);
                 c._sections[i].Load(sec);
             }
 
             if (level.ContainsKey("Biomes", TagType.ByteArray))
             {
-                c._biomes = level.GetByteArray("Biomes");
-            }
-            TagList entities = (TagList)level["Entities"];
+                byte[] oldBiome = level.GetByteArray("Biomes");
+				for (int i = 0; i < oldBiome.Length; i++)
+					c._biomes[i] = oldBiome[i];
+
+			}
+			TagList entities = (TagList)level["Entities"];
             foreach (TagCompound t in entities)
             {
                 c.Entities.Add(t);
@@ -249,50 +252,70 @@ namespace OrangeNBT.World.Anvil
             return c;
         }
 
-        public void Save()
+        public void Save(int version = 0)
         {
             if (!_isModified) return;
 
-            _manager.SaveChunk(this);
+            _manager.SaveChunk(this, version);
             _isModified = false;
         }
 
-        public TagCompound BuildTag()
-        {
-            TagList tagSections = new TagList("Sections", TagType.Compound);
-            for (int i = 0; i < _sections.Length; i++)
-            {
-                if (_sections[i] != null)
-                {
-                    tagSections.Add(_sections[i].BuildTag());
-                }
-            }
+		protected TagList GenSectionsTag()
+		{
+			TagList tagSections = new TagList("Sections", TagType.Compound);
+			for (int i = 0; i < _sections.Length; i++)
+			{
+				if (_sections[i] != null)
+				{
+					tagSections.Add(_sections[i].BuildTag());
+				}
+			}
+			return tagSections;
+		}
 
-            TagList tiles = new TagList("TileEntities", TagType.Compound);
-            foreach (TagCompound c in _tileEntities.Values)
-            {
-                tiles.Add(c);
-            }
+		protected TagList GenTileEntitiesTag()
+		{
+			TagList tiles = new TagList("TileEntities", TagType.Compound);
+			foreach (TagCompound c in _tileEntities.Values)
+			{
+				tiles.Add(c);
+			}
+			return tiles;
+		}
 
-            return new TagCompound()
-            {
-                new TagInt("DataVersion", 1),
-                new TagCompound("Level")
-                {
-                    tagSections,
-                    new TagInt("xPos", _coord.X),
-                    new TagInt("zPos", _coord.Z),
-                    new TagLong("LastUpdate", DateTime.Now.Ticks),
-                    new TagByte("V", 1),
-                    new TagByte("TerrainPopulated", (byte)(_isTerrainPopulated? 1 : 0)),
-                    new TagByte("LightPopulated", (byte)(_isLightPopulated? 1 : 0)),
-                    new TagIntArray("HeightMap", _heights),
-                    new TagByteArray("Biomes", _biomes),
-                    _entities.BuildTag(),
-                    tiles
-                }
-            };
-        }
+		public virtual TagCompound BuildTag()
+		{
+			return BuildTag(0);
+		}
+
+		public virtual TagCompound BuildTag(int version)
+		{
+			TagList tagSections = GenSectionsTag();
+			TagList tiles = GenTileEntitiesTag();
+
+			byte[] biomeArray = new byte[Width * Length];
+			for (int i = 0; i < biomeArray.Length; i++)
+				biomeArray[i] = (byte)_biomes[i];
+
+			return new TagCompound()
+			{
+				new TagInt("DataVersion", 1),
+				new TagCompound("Level")
+				{
+					tagSections,
+					new TagInt("xPos", _coord.X),
+					new TagInt("zPos", _coord.Z),
+					new TagLong("LastUpdate", DateTime.Now.Ticks),
+					new TagByte("V", 1),
+					new TagByte("TerrainPopulated", (byte)(_isTerrainPopulated? 1 : 0)),
+					new TagByte("LightPopulated", (byte)(_isLightPopulated? 1 : 0)),
+					new TagIntArray("HeightMap", _heights),
+					new TagByteArray("Biomes", biomeArray),
+					_entities.BuildTag(),
+					tiles
+				}
+			};
+		}
 
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using OrangeNBT.NBT;
 using OrangeNBT.NBT.IO;
+using OrangeNBT.World.AnvilImproved;
 using OrangeNBT.World.Core;
 using System;
 using System.Collections.Generic;
@@ -107,24 +108,24 @@ namespace OrangeNBT.World.Anvil
             if (chunkTag == null)
                 return null;
 
-            return AnvilChunk.Load(this, chunkTag);
+            return AnvilChunkImproved.Load(this, chunkTag);
         }
 
-        internal void Save()
+        internal void Save(int version)
         {
             foreach(IChunk chunk in _cache)
             {
                 if (!chunk.IsModified) continue;
-                SaveChunk((AnvilChunk)chunk);
+                SaveChunk((AnvilChunk)chunk, version);
                 chunk.IsModified = false;
             }
             
         }
 
-        internal void SaveChunk(AnvilChunk chunk)
+        internal void SaveChunk(AnvilChunk chunk, int version)
         {
             RegionFile f = FetchRegion(chunk.Coord.RegionCoord);
-            TagCompound chunkTag = chunk.BuildTag();
+            TagCompound chunkTag = chunk.BuildTag(version);
             using (Stream stream = f.WriteChunk(new ChunkCoord(chunk.Coord.X & 31, chunk.Coord.Z & 31)))
             {
                 NBTFile.ToStream(stream, chunkTag);

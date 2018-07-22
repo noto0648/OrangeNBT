@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using OrangeNBT.Helper;
 using OrangeNBT.NBT;
-using OrangeNBT.Helper;
-using System.Collections;
+using System;
 
 namespace OrangeNBT.Data.Format
 {
-    public class Schematic : StructureBase, IBlockAccess, ITagProvider<TagCompound>
+	public class Schematic : StructureBase, IBlockAccess, ITagProvider<TagCompound>
     {
         private string _materials = "Alpha";
         private byte[] _blocks;
@@ -26,47 +23,85 @@ namespace OrangeNBT.Data.Format
         public Schematic(Cuboid cuboid)
             : this(cuboid.Width, cuboid.Height, cuboid.Length)
         { }
-
-        public int GetBlockData(int x, int y, int z)
+		
+        private int GetBlockData(int x, int y, int z)
         {
             return _blocks[ToIndex(x, y, z)];
         }
 
-        public int GetBlockId(int x, int y, int z)
+		private int GetBlockId(int x, int y, int z)
         {
             return _metadata[ToIndex(x, y, z)];
         }
+		
+		public BlockSet GetBlock(int x, int y, int z)
+		{
+			return new BlockSet(GameData.JavaEdition.GetBlock(GetBlockId(x, y, z)), GetBlockData(x, y, z));
+		}
 
-        public TagCompound GetTileEntity(int x, int y, int z)
-        {
-            throw new NotImplementedException();
-        }
+		public bool SetBlock(int x, int y, int z, BlockSet block)
+		{
+			return SetBlock(x, y, z, block.Block.Id, block.Metadata);
+		}
 
-        //public bool SetBlock(int x, int y, int z, IBlock block, int metadata = 0)
-        public bool SetBlock(int x, int y, int z, int block, int metadata = 0)
+		public TagCompound GetTileEntity(int x, int y, int z)
+		{
+			foreach (TagCompound comp in _tileEntities)
+			{
+				if (comp.ContainsKey("x") && comp.ContainsKey("y") && comp.ContainsKey("z"))
+				{
+					int tx = comp.GetInt("x");
+					int ty = comp.GetInt("y");
+					int tz = comp.GetInt("z");
+					if (tx == x && ty == y && tz == z)
+					{
+						return comp;
+					}
+				}
+			}
+			return null;
+		}
+
+        private bool SetBlock(int x, int y, int z, int block, int metadata = 0)
         {
             _blocks[ToIndex(x, y, z)] = (byte)block;
             _metadata[ToIndex(x, y, z)] = (byte)metadata;
             return true;
         }
 
-        public bool SetTileEntity(int x, int y, int z, TagCompound tag)
-        {
-            throw new NotImplementedException();
-        }
+		public bool SetTileEntity(int x, int y, int z, TagCompound tag)
+		{
+			TagCompound cp = GetTileEntity(x, y, z);
+			if (cp != null && tag != null)
+			{
+				cp = tag;
+				return true;
+			}
+			else if (cp != null && tag == null)
+			{
+				_tileEntities.Remove(cp);
+				return true;
+			}
+			else if (cp == null && tag != null)
+			{
+				_tileEntities.Add(tag);
+				return true;
+			}
+			return false;
+		}
 
         protected int ToIndex(int x, int y, int z)
         {
             return x + z * _width + y * _length * _width;
         }
 
-        public bool SetData(int x, int y, int z, int data)
+        private bool SetData(int x, int y, int z, int data)
         {
             _metadata[ToIndex(x, y, z)] = (byte)data;
             return true;
         }
 
-        public bool SetBlockId(int x, int y, int z, int id)
+		private bool SetBlockId(int x, int y, int z, int id)
         {
             _blocks[ToIndex(x, y, z)] = (byte)id;
             return true;

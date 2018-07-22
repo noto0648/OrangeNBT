@@ -1,97 +1,36 @@
-﻿using OrangeNBT.Helper;
+﻿using OrangeNBT.Data;
+using OrangeNBT.Helper;
 using OrangeNBT.NBT;
 using OrangeNBT.World.Core;
 using System;
 
 namespace OrangeNBT.World.Anvil
 {
-    public class AnvilSection : IWorldAccess, ITagProvider<TagCompound>
+    public abstract class AnvilSection : IWorldAccess, ITagProvider<TagCompound>
     {
         public const int Width = 16;
         public const int Height = 16;
         public const int Length = 16;
 
-        private int _y;
-        public int Y { get { return _y; } set { _y = Math.Max(0, Y); } }
+		protected readonly int _y;
+        public int Y { get { return _y; } }
 
-        private byte[] _blocks;             //lsb_array
-        private NibbleArray _addBlocks;     //msb_array
-        private NibbleArray _data;
-        private NibbleArray _blockLight;
-        private NibbleArray _skyLight;
+        protected NibbleArray _blockLight;
+		protected NibbleArray _skyLight;
 
-        private int _modifyCount;
+		protected int _modifyCount;
 
         public bool IsEmpty { get { return _modifyCount == 0; } }
 
         public AnvilSection(int y, bool makeSkyLight)
         {
             _y = y;
-
-            _blocks = new byte[4096];
-            _data = new NibbleArray();
             _blockLight = new NibbleArray();
 
             if (makeSkyLight)
             {
                 _skyLight = new NibbleArray();
             }
-        }
-
-        public int GetBlockId(int x, int y, int z)
-        {
-            int block = _blocks[y << 8 | z << 4 | x] & 255;
-            if (_addBlocks != null)
-            {
-                block |= _addBlocks[x, y, z] << 8;
-            }
-            return block;
-        }
-
-        public int GetBlockData(int x, int y, int z)
-        {
-            return _data[x, y, z];
-        }
-
-        public bool SetBlockId(int x, int y, int z, int id)
-        {
-            int blockOrigin = _blocks[y << 8 | z << 4 | x] & 255;
-
-            if (_addBlocks != null)
-            {
-                blockOrigin |= _addBlocks[x, y, z] << 8;
-            }
-
-            if (blockOrigin != 0)
-            {
-                _modifyCount--;
-            }
-            if (id != 0)
-            {
-                _modifyCount++;
-            }
-            _blocks[y << 8 | z << 4 | x] = (byte)(id & 255);
-
-            if (id > 255)
-            {
-                if (_addBlocks == null)
-                {
-                    _addBlocks = new NibbleArray(_blocks.Length);
-                }
-
-                _addBlocks[x, y, z] = (id & 3840) >> 8;
-            }
-            else if (_addBlocks != null)
-            {
-                _addBlocks[x, y, z] = 0;
-            }
-            return true;
-        }
-
-        public bool SetData(int x, int y, int z, int data)
-        {
-            _data[x, y, z] = data;
-            return true;
         }
 
         public bool SetSkyLight(int x, int y, int z, int light)
@@ -126,36 +65,19 @@ namespace OrangeNBT.World.Anvil
             throw new NotSupportedException();
         }
 
-        public void Load(TagCompound c)
-        {
-            _blocks = c.GetByteArray("Blocks");
+		public abstract BlockSet GetBlock(int x, int y, int z);
 
-            if (c.ContainsKey("Add", TagType.ByteArray))
-            {
-                _addBlocks = (new NibbleArray(c.GetByteArray("Add"), 4));
-            }
-            _data = (new NibbleArray(c.GetByteArray("Data"), 4));
-            _blockLight = (new NibbleArray(c.GetByteArray("BlockLight"), 4));
-            _skyLight = (new NibbleArray(c.GetByteArray("SkyLight"), 4));
+		public abstract bool SetBlock(int x, int y, int z, BlockSet block);
 
-        }
+		public virtual void Load(TagCompound c)
+		{
+			_blockLight = (new NibbleArray(c.GetByteArray("BlockLight"), 4));
+			_skyLight = (new NibbleArray(c.GetByteArray("SkyLight"), 4));
+		}
 
-        public TagCompound BuildTag()
-        {
-            TagCompound c = new TagCompound()
-            {
-                new TagByteArray("Blocks", _blocks),
-                new TagByteArray("Data", _data),
-                new TagByteArray("BlockLight", _blockLight),
-                new TagByteArray("SkyLight", _skyLight),
-                new TagByte("Y", (byte)_y)
-            };
-            if (_addBlocks != null)
-                c.Add("Add", new TagByteArray(_addBlocks));
-            return c;
-        }
+		public abstract TagCompound BuildTag();
 
-        public TagCompound GetTileEntity(int x, int y, int z)
+		public TagCompound GetTileEntity(int x, int y, int z)
         {
             throw new NotSupportedException();
         }
@@ -174,5 +96,7 @@ namespace OrangeNBT.World.Anvil
         {
             throw new NotSupportedException();
         }
-    }
+
+
+	}
 }

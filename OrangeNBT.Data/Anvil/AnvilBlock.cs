@@ -22,7 +22,7 @@ namespace OrangeNBT.Data.Anvil
 
 		public string Name => GetName(0);
 
-		private Metadata[] _metadatas;
+		private Metadata[] _metadatas = new Metadata[16];
 
 		public AnvilBlock(int id, string name)
 		{

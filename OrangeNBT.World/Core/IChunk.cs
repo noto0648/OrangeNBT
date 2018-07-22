@@ -9,6 +9,6 @@ namespace OrangeNBT.World.Core
         bool IsModified { get; set; }
         ChunkCoord Coord { get; }
 
-        void Save();
+        void Save(int version = 0);
     }
 }

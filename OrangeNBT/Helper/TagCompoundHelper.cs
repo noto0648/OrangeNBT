@@ -114,7 +114,12 @@ namespace OrangeNBT.Helper
             return tag.ContainsKey(name) ? ((TagIntArray)tag[name]).Value : new int[0];
         }
 
-        public static TagByte GetTagByte(this TagCompound tag, string name)
+		public static long[] GetLongArray(this TagCompound tag, string name)
+		{
+			return tag.ContainsKey(name) ? ((TagLongArray)tag[name]).Value : new long[0];
+		}
+
+		public static TagByte GetTagByte(this TagCompound tag, string name)
         {
             return tag.ContainsKey(name) ? tag[name] as TagByte : null;
         }
@@ -159,7 +164,12 @@ namespace OrangeNBT.Helper
             return tag.ContainsKey(name) ? tag[name] as TagIntArray : null;
         }
 
-        public static bool ContainsKey(this TagCompound tag, string name, TagType type)
+		public static TagLongArray GetTagLongArray(this TagCompound tag, string name)
+		{
+			return tag.ContainsKey(name) ? tag[name] as TagLongArray : null;
+		}
+
+		public static bool ContainsKey(this TagCompound tag, string name, TagType type)
         {
             if (!tag.ContainsKey(name)) return false;
             return tag[name].TagType == type;
