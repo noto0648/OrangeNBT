@@ -143,7 +143,12 @@ namespace OrangeNBT.NBT
             return tag.Name == Name;
         }
 
-        public override TagBase Clone()
+		public override string ToString()
+		{
+			return NBTFile.ToJson(this);
+		}
+
+		public override TagBase Clone()
         {
             return new TagList(this);
         }

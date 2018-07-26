@@ -27,13 +27,13 @@ namespace OrangeNBT.World.Anvil
             return dim;
         }
 
-        public void Save()
-        {
-            foreach (AnvilDimension d in _dimensions.Values)
-            {
-                d.Save();
-            }
-        }
+		public void Save(int version = 1549)
+		{
+			foreach (AnvilDimension d in _dimensions.Values)
+			{
+				d.Save(version);
+			}
+		}
 
         public void Dispose()
         {

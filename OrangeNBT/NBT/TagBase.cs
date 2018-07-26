@@ -39,7 +39,7 @@ namespace OrangeNBT.NBT
 
         public abstract TagBase Clone();
 
-        public bool Rename(string newName)
+		public bool Rename(string newName)
         {
             if (_parent != null)
             {

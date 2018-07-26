@@ -5,12 +5,12 @@ namespace OrangeNBT.NBT.IO
 {
     public static class NBTFile
     {
-        public static string ToJson(TagCompound tag)
+        public static string ToJson(TagBase tag)
         {
             return ToJson(tag, JsonOptions.Default);
         }
 
-        public static string ToJson(TagCompound tag, JsonOptions ops)
+        public static string ToJson(TagBase tag, JsonOptions ops)
         {
             return NBTJsonSerializerFizzy.ToJson(tag, ops);
         }

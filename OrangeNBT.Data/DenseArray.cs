@@ -16,7 +16,7 @@
 
 		public int Length
 		{
-			get { return _data.Length; }
+			get { return _data.Length * 64 / _bitsPerBlock; }
 		}
 
 		public DenseArray(int bitsPerBlock, int size)
@@ -53,7 +53,6 @@
 
 		private void Set(int index, int val)
 		{
-
 			int startLong = (index * _bitsPerBlock) / 64;
 			int startOffset = (index * _bitsPerBlock) % 64;
 			int endLong = ((index + 1) * _bitsPerBlock - 1) / 64;
@@ -61,7 +60,7 @@
 			uint nval = (uint)val;
 			nval &= _mask;
 
-			_data[startLong] |= (nval << startOffset);
+			_data[startLong] = _data[startLong] & ~(_bitsPerBlock << startOffset) | ((long)nval &_mask) << startOffset;
 
 			if (startLong != endLong)
 			{

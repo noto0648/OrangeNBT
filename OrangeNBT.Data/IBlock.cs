@@ -15,13 +15,16 @@ namespace OrangeNBT.Data
 
 		string Name { get; }
 
+		BlockSet DefaultBlockSet { get; }
+
 		TagCompound BuildTileEntity();
 
         string GetName(int metadata);
 
-        IDictionary<string, string> GetProperties(int metadata);
+        IDictionary<string, string> GetProperties(int runtimeId);
 
-		int GetMetadata(IDictionary<string, string> properties);
+		BlockSet GetBlock(IDictionary<string, string> properties);
 
+		int GetRuntimeId(IDictionary<string, string> properties);
 	}
 }

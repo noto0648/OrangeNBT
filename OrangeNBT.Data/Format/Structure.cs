@@ -80,7 +80,7 @@ namespace OrangeNBT.Data.Format
 				}
 			}
 			IBlock block = GameData.JavaEdition.GetBlock(name);
-			int meta = block.GetMetadata(ps);
+			int meta = block.GetBlock(ps).Metadata;
 			return new BlockKey(name, meta);
 		}
 
@@ -237,44 +237,6 @@ namespace OrangeNBT.Data.Format
 			public string BlockName { get; set; }
 			public int Metadata { get; set; }
 			public TagCompound NBT { get; set; }
-
-			//private int _blockId = -1;
-
-			/*
-			public int BlockId
-			{
-				get
-				{
-					if (_blockId == -1)
-					{
-						IBlock blockInfo = GameData.JavaEdition.GetBlock(BlockName);
-						if (blockInfo != null)
-						{
-							_blockId = blockInfo.Id;
-						}
-					}
-					return _blockId;
-				}
-				set
-				{
-					try
-					{
-						_blockId = value;
-						IBlock blockInfo = GameData.JavaEdition.GetBlock(_blockId);
-
-						if (blockInfo != null)
-						{
-							BlockName = blockInfo.Name;
-						}
-
-					}
-					catch (Exception)
-					{
-
-					}
-				}
-			}
-			*/
 
 			public BlockKey(string id, int meta)
 				: this(0, 0, 0, id, meta) { }

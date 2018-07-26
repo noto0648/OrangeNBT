@@ -3,28 +3,30 @@ using OrangeNBT.Helper;
 using OrangeNBT.NBT;
 using OrangeNBT.World.Anvil;
 using System;
+using System.Collections.Generic;
 
 namespace OrangeNBT.World.AnvilImproved
 {
 	public class AnvilSectionImproved : AnvilSection
     {
-		//TODO : for memory, change the system-id list
-		private BlockSet[,,] _blocks;
+		private int[,,] _blocks;
 
 		public AnvilSectionImproved(int y, bool makeSkyLight)
 			: base(y, makeSkyLight)
 		{
-			_blocks = new BlockSet[Width, Height, Length];
+			_blocks = new int[Width, Height, Length];
 		}
 
 		public override BlockSet GetBlock(int x, int y, int z)
 		{
-			return _blocks[x, y, z];
+			IBlock block = GameData.JavaEdition.GetBlock(_blocks[x, y, z]);
+			IDictionary<string, string> properties = block.GetProperties(_blocks[x, y, z]);
+			return block.GetBlock(properties);
 		}
 
 		public override bool SetBlock(int x, int y, int z, BlockSet block)
 		{
-			_blocks[x, y, z] = block;
+			_blocks[x, y, z] =  block.RuntimeId;
 			return true;
 		}
 
@@ -36,10 +38,20 @@ namespace OrangeNBT.World.AnvilImproved
 			for(int i = 0; i < palette.Length; i++)
 			{
 				TagCompound r = (TagCompound)paletteList[i];
-				if(r.ContainsKey("Properties", TagType.String))
-					palette[i] = new BlockSet(GameData.JavaEdition.GetBlock(r.GetString("Name")), (TagCompound)r["Properties"]);
+				IBlock block = GameData.JavaEdition.GetBlock(r.GetString("Name"));
+				if (r.ContainsKey("Properties", TagType.Compound))
+				{
+					Dictionary<string, string> ps = new Dictionary<string, string>();
+					foreach (TagString tag in (TagCompound)r["Properties"])
+					{
+						ps.Add(tag.Name, tag.Value);
+					}
+					palette[i] = block.GetBlock(ps);
+				}
 				else
-					palette[i] = new BlockSet(GameData.JavaEdition.GetBlock(r.GetString("Name")), 0);
+				{
+					palette[i] = new BlockSet(block, block.DefaultBlockSet.Properties, block.DefaultBlockSet.RuntimeId);
+				}
 			}
 			DenseArray array = new DenseArray(data, data.Length * 64 / 4096);
 
@@ -49,9 +61,9 @@ namespace OrangeNBT.World.AnvilImproved
 				{
 					for (int x = 0; x < Width; x++)
 					{
-						int blockIndex = (((y * Height) + z) * Width) + x;
+						int blockIndex = (y * Height + z) * Width + x;
 						int val = array[blockIndex];
-						SetBlock(x, y, z, palette[val]);
+						_blocks[x, y, z] = palette[val].RuntimeId;
 					}
 				}
 			}
@@ -69,18 +81,17 @@ namespace OrangeNBT.World.AnvilImproved
 				{
 					for (int x = 0; x < Width; x++)
 					{
-						int blockIndex = (((y * Height) + z) * Width) + x;
-						indexList[blockIndex] = palette.GetIndex(GetBlock(x, y, z));
+						int blockIndex = (y * Height + z) * Width + x;
+						indexList[blockIndex] = palette.GetIndex(_blocks[x, y, z]);
 					}
 				}
 			}
 			int bits = (int)Math.Max(4, Math.Ceiling(Math.Log(palette.Count, 2)));
-			DenseArray array = new DenseArray(bits, indexList.Length);
+			DenseArray array = new DenseArray(bits, Width * Height * Length * bits / 64);
 			for (int i = 0; i < indexList.Length; i++)
 			{
 				array[i] = indexList[i];
 			}
-
 			return new TagCompound()
 			{
 				palette.BuildTag(),

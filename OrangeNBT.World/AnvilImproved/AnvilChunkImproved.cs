@@ -11,11 +11,21 @@ namespace OrangeNBT.World.AnvilImproved
 	public class AnvilChunkImproved : AnvilChunk
 	{
 		private const int BorderVersion = 1500;
-
+		private static readonly string[] ListOfList = new string[] { "LiquidTicks", "Lights", "LiquidsToBeTicked", "ToBeTicked", "PostProcessing" };
 		private ChunkStatus _status = ChunkStatus.Empty;
+
+		private Dictionary<string, HeightMap> _heightMaps;
+		public Dictionary<string, HeightMap> HeightMaps => _heightMaps;
+
+		private byte[] _carvingMaskAir;
+		private byte[] _carvingMaskLiquid;
+
+		private Dictionary<string, TagList> _lists = new Dictionary<string, TagList>();
+		private TagCompound _structures = new TagCompound("Structures") { new TagCompound("Starts"), new TagCompound("References") };
 
 		public AnvilChunkImproved(AnvilChunkManager manager, ChunkCoord coord) : base(manager, coord)
 		{
+			_heightMaps = new Dictionary<string, HeightMap>();
 		}
 
 		protected override AnvilSection CreateNewSection(int y, bool skylight)
@@ -56,6 +66,37 @@ namespace OrangeNBT.World.AnvilImproved
 			{
 				c._biomes = level.GetIntArray("Biomes");
 			}
+
+			if(level.ContainsKey("Heightmaps"))
+			{
+				foreach(TagLongArray t in (TagCompound)level["Heightmaps"])
+				{
+					c._heightMaps.Add(t.Name, new HeightMap(t.Name, t.Value));
+				}
+			}
+
+			if (level.ContainsKey("CarvingMasks"))
+			{
+				TagCompound tag = (TagCompound)level["CarvingMasks"];
+				if (tag.ContainsKey("AIR"))
+					c._carvingMaskAir = tag.GetByteArray("AIR");
+
+				if (tag.ContainsKey("LIQUID"))
+					c._carvingMaskLiquid = tag.GetByteArray("LIQUID");
+			}
+
+			if(level.ContainsKey("Structures"))
+			{
+				c._structures = (TagCompound)level["Structures"];
+			}
+			for(int i = 0; i < ListOfList.Length; i++)
+			{
+				if (level.ContainsKey(ListOfList[i]))
+				{
+					c._lists.Add(ListOfList[i], (TagList)level[ListOfList[i]]);
+				}
+			}
+
 			TagList entities = (TagList)level["Entities"];
 			foreach (TagCompound t in entities)
 			{
@@ -76,17 +117,13 @@ namespace OrangeNBT.World.AnvilImproved
 
 		public override TagCompound BuildTag(int version = 0)
 		{
-			if(version > BorderVersion)
+			if (version < BorderVersion)
 			{
 				return base.BuildTag(version);
 			}
 			TagList tagSections = GenSectionsTag();
 			TagList tiles = GenTileEntitiesTag();
-
-			return new TagCompound() {
-
-				new TagInt("DataVersion", version),
-				new TagCompound("Level")
+			TagCompound level = new TagCompound("Level")
 				{
 					tagSections,
 					new TagInt("xPos", _coord.X),
@@ -96,7 +133,39 @@ namespace OrangeNBT.World.AnvilImproved
 					new TagIntArray("Biomes", _biomes),
 					_entities.BuildTag(),
 					tiles
-				}
+				};
+
+			TagCompound heightMaps = new TagCompound("Heightmaps");
+			foreach (string key in _heightMaps.Keys)
+			{
+				heightMaps.Add(_heightMaps[key].BuildTag());
+			}
+			level.Add(heightMaps);
+
+			if (_carvingMaskAir != null && _carvingMaskAir.Length > 0)
+			{
+				if (level.ContainsKey("CarvingMasks"))
+					level.Add(new TagCompound("CarvingMasks"));
+				((TagCompound)level["CarvingMasks"]).Add("AIR", _carvingMaskAir);
+			}
+			if (_carvingMaskLiquid != null && _carvingMaskLiquid.Length > 0)
+			{
+				if (level.ContainsKey("CarvingMasks"))
+					level.Add(new TagCompound("CarvingMasks"));
+				((TagCompound)level["CarvingMasks"]).Add("LIQUID", _carvingMaskLiquid);
+			}
+
+			foreach (string key in _lists.Keys)
+			{
+				level.Add(_lists[key]);
+			}
+
+			level.Add(_structures);
+
+			return new TagCompound() {
+
+				new TagInt("DataVersion", version),
+				level
 			};
 		}
 

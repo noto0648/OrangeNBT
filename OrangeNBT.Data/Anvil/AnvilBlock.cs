@@ -22,6 +22,8 @@ namespace OrangeNBT.Data.Anvil
 
 		public string Name => GetName(0);
 
+		public BlockSet DefaultBlockSet => new BlockSet(this, 0);
+
 		private Metadata[] _metadatas = new Metadata[16];
 
 		public AnvilBlock(int id, string name)
@@ -81,33 +83,26 @@ namespace OrangeNBT.Data.Anvil
 			return new Dictionary<string, string>();
 		}
 
-		public int GetMetadata(IDictionary<string, string> properties)
+		public BlockSet GetBlock(IDictionary<string, string> properties)
 		{
-			for(int i = 0; i < _metadatas.Length; i++)
+			return new BlockSet(this, GetRuntimeId(properties));
+		}
+
+		public int GetRuntimeId(IDictionary<string, string> properties)
+		{
+			for (int i = 0; i < _metadatas.Length; i++)
 			{
-				if(_metadatas[i] != null)
+				if (_metadatas[i] != null)
 				{
-					if (_metadatas[i].Properties == null || _metadatas[i].Properties.Count != properties.Count)
+					if (BlockSet.EqualsProperties(_metadatas[i].Properties, properties))
 					{
-						return 0;
-					}
-					bool breakFlag = false;
-					foreach(string key in _metadatas[i].Properties.Keys)
-					{
-						if (!properties.ContainsKey(key) || properties[key] != _metadatas[i].Properties[key])
-						{
-							breakFlag = true;
-							break;
-						}
-					}
-					if(!breakFlag)
-					{
-						return i;
+						return _metadatas[i].Data;
 					}
 				}
 			}
 			return 0;
 		}
+
 
 		private class Metadata
 		{

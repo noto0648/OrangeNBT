@@ -299,7 +299,7 @@ namespace OrangeNBT.World.Anvil
 
 			return new TagCompound()
 			{
-				new TagInt("DataVersion", 1),
+				new TagInt("DataVersion", version),
 				new TagCompound("Level")
 				{
 					tagSections,

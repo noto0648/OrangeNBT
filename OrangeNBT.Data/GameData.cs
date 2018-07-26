@@ -1,11 +1,11 @@
-﻿using OrangeNBT.Data.Anvil;
+﻿using OrangeNBT.Data.AnvilImproved;
 using System;
 
 namespace OrangeNBT.Data
 {
 	public static class GameData
     {
-		public static IGameDataProvider JavaEdition { get; set; } = AnvilDataProvider.Instance;
+		public static IGameDataProvider JavaEdition { get; set; } = AnvilImprovedDataProvider.Instance;
 
 		private static IGameDataProvider _pocketEdition;
 		public static IGameDataProvider PocketEdition

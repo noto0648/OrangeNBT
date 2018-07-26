@@ -41,7 +41,7 @@ namespace OrangeNBT.World.Anvil
             {
                 return _cache.Fetch(coord);
             }
-            AnvilChunk c = new AnvilChunk(this, coord);
+            AnvilChunk c = new AnvilChunkImproved(this, coord);
             _cache.Add(c);
             FetchRegion(coord.RegionCoord, true);
             return c;

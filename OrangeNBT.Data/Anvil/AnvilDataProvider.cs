@@ -11,7 +11,7 @@ namespace OrangeNBT.Data.Anvil
 
 		private Dictionary<int, AnvilBlock> _blockMap;
 
-		public string Version => "Anvil 1.13";
+		public string Version => "Anvil 1.12";
 
 		private AnvilDataProvider()
 		{

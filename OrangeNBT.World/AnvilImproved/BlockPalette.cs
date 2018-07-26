@@ -1,5 +1,7 @@
 ﻿using OrangeNBT.Data;
 using OrangeNBT.NBT;
+using OrangeNBT.NBT.IO;
+using System;
 using System.Collections.Generic;
 
 namespace OrangeNBT.World.AnvilImproved
@@ -7,7 +9,7 @@ namespace OrangeNBT.World.AnvilImproved
 	public class BlockPalette : ITagProvider<TagList>
     {
 		private List<BlockSet> _blockSets;
-
+		private Dictionary<int, int> _blocks = new Dictionary<int, int>();
 		public int Count
 		{
 			get { return _blockSets.Count; }
@@ -21,6 +23,20 @@ namespace OrangeNBT.World.AnvilImproved
 		public BlockPalette()
 		{
 			_blockSets = new List<BlockSet>();
+		}
+
+		public int GetIndex(int runtimeId)
+		{
+			if(_blocks.ContainsKey(runtimeId))
+			{
+				return _blocks[runtimeId];
+			}
+
+			int index = _blockSets.Count;
+			IBlock block = GameData.JavaEdition.GetBlock(runtimeId);
+			_blockSets.Add(new BlockSet(block, block.GetProperties(runtimeId), runtimeId));
+			_blocks.Add(runtimeId, index);
+			return index;
 		}
 
 		public int GetIndex(BlockSet block)
@@ -45,10 +61,10 @@ namespace OrangeNBT.World.AnvilImproved
 				{
 					new TagString("Name", block.Name)
 				};
-				IDictionary<string, string> properties = block.Block.GetProperties(block.Metadata);
+				IDictionary<string, string> properties = block.Properties;//block.Block.GetProperties(block.Metadata);
 				if (properties != null && properties.Count > 0)
 				{
-					TagList props = new TagList("Properties", TagType.String);
+					TagCompound props = new TagCompound("Properties");
 					foreach(string key in properties.Keys)
 					{
 						props.Add(new TagString(key, properties[key]));

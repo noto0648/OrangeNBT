@@ -22,7 +22,7 @@ namespace OrangeNBT.World
 
         public abstract void Dispose();
 
-        public abstract void Save();
+		public abstract void Save(int version = 0);
 
     }
 }
