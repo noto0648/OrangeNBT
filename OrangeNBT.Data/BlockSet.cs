@@ -1,4 +1,5 @@
-﻿using OrangeNBT.NBT;
+﻿using OrangeNBT.Data.Anvil.Helper;
+using OrangeNBT.NBT;
 using System;
 using System.Collections.Generic;
 
@@ -57,17 +58,18 @@ namespace OrangeNBT.Data
 			_systemId = block.GetRuntimeId(properties);
 		}
 
+		public BlockSet(IBlock block, TagCompound properties)
+		{
+			_block = block;
+			_properties = PropertyConverter.From(properties);
+			_systemId = block.GetRuntimeId(_properties);
+		}
+
 		public BlockSet(IBlock block, TagCompound properties, int systemId)
 		{
 			_block = block;
-			Dictionary<string, string> ps = new Dictionary<string, string>();
-			foreach(TagString tag in properties)
-			{
-				ps.Add(tag.Name, tag.Value);
-			}
-			_properties = ps;
+			_properties = PropertyConverter.From(properties);
 			_systemId = systemId;
-
 		}
 
 		public BlockSet(IBlock block, IDictionary<string, string> properties, int systemId)
