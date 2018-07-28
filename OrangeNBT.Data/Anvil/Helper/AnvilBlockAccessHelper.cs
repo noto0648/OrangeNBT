@@ -33,11 +33,11 @@ namespace OrangeNBT.Data.Anvil.Helper
 			return world.SetBlock(x, y, z, block.DefaultBlockSet);
 		}
 
-		public static bool SetBlock(this IBlockAccess world, int x, int y, int z, string blockName, dynamic propertis)
-		{
-			IBlock block = GameData.JavaEdition.GetBlock(blockName);
+		//public static bool SetBlock(this IBlockAccess world, int x, int y, int z, string blockName, dynamic propertis)
+		//{
+		//	IBlock block = GameData.JavaEdition.GetBlock(blockName);
 
-			return world.SetBlock(x, y, z, new BlockSet(block, PropertyConverter.From(propertis)));
-		}
+		//	return world.SetBlock(x, y, z, new BlockSet(block, PropertyConverter.From(propertis)));
+		//}
 	}
 }

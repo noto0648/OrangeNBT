@@ -1,7 +1,5 @@
 ﻿using OrangeNBT.NBT;
-using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace OrangeNBT.Data.Anvil.Helper
 {
@@ -27,16 +25,16 @@ namespace OrangeNBT.Data.Anvil.Helper
 			return ps;
 		}
 
-		public static Dictionary<string, string> From(dynamic val)
-		{
-			Dictionary<string, string> ps = new Dictionary<string, string>();
-			Type t = val.GetType();
-			PropertyInfo[] pos = t.GetProperties();
-			for(int i = 0; i < pos.Length; i++)
-			{
-				ps.Add(pos[i].Name, pos[i].GetValue(val).ToString());
-			}
-			return ps;
-		}
+		//public static Dictionary<string, string> From(dynamic val)
+		//{
+		//	Dictionary<string, string> ps = new Dictionary<string, string>();
+		//	Type t = val.GetType();
+		//	PropertyInfo[] pos = t.GetProperties();
+		//	for(int i = 0; i < pos.Length; i++)
+		//	{
+		//		ps.Add(pos[i].Name, pos[i].GetValue(val).ToString());
+		//	}
+		//	return ps;
+		//}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using OrangeNBT.Helper;
+﻿using OrangeNBT.Data.Anvil;
+using OrangeNBT.Helper;
 using OrangeNBT.NBT;
 using System;
 
@@ -36,7 +37,7 @@ namespace OrangeNBT.Data.Format
 		
 		public BlockSet GetBlock(int x, int y, int z)
 		{
-			return new BlockSet(GameData.JavaEdition.GetBlock(GetBlockId(x, y, z)), GetBlockData(x, y, z));
+			return new BlockSet(AnvilDataProvider.Instance.GetBlock(GetBlockId(x, y, z)), GetBlockData(x, y, z));
 		}
 
 		public bool SetBlock(int x, int y, int z, BlockSet block)
