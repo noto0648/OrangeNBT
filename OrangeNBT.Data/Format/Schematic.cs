@@ -25,12 +25,12 @@ namespace OrangeNBT.Data.Format
             : this(cuboid.Width, cuboid.Height, cuboid.Length)
         { }
 		
-        private int GetBlockData(int x, int y, int z)
+        private int GetBlockId(int x, int y, int z)
         {
             return _blocks[ToIndex(x, y, z)];
         }
 
-		private int GetBlockId(int x, int y, int z)
+		private int GetBlockData(int x, int y, int z)
         {
             return _metadata[ToIndex(x, y, z)];
         }

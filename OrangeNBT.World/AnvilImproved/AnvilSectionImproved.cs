@@ -61,7 +61,7 @@ namespace OrangeNBT.World.AnvilImproved
 				{
 					for (int x = 0; x < Width; x++)
 					{
-						int blockIndex = (y * Height + z) * Width + x;
+						int blockIndex = (y * Length + z) * Width + x;
 						int val = array[blockIndex];
 						_blocks[x, y, z] = palette[val].RuntimeId;
 					}
@@ -81,13 +81,13 @@ namespace OrangeNBT.World.AnvilImproved
 				{
 					for (int x = 0; x < Width; x++)
 					{
-						int blockIndex = (y * Height + z) * Width + x;
+						int blockIndex = (y * Length + z) * Width + x;
 						indexList[blockIndex] = palette.GetIndex(_blocks[x, y, z]);
 					}
 				}
 			}
 			int bits = (int)Math.Max(4, Math.Ceiling(Math.Log(palette.Count, 2)));
-			DenseArray array = new DenseArray(bits, Width * Height * Length * bits / 64);
+			DenseArray array = new DenseArray(bits, 4096);
 			for (int i = 0; i < indexList.Length; i++)
 			{
 				array[i] = indexList[i];

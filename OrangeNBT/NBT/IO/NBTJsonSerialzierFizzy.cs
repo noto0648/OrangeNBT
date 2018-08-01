@@ -8,13 +8,6 @@ namespace OrangeNBT.NBT.IO
     class NBTJsonSerializerFizzy
     {
         private static Regex ListRegex = new Regex("\\[[-+\\d|,\\s]+\\]");
-        /*
-        private static Regex DoubleRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+[d|D]$");
-        private static Regex SingleRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+[f|F]$");
-        private static Regex ByteRegex = new Regex("^[-+]?[0-9]+[b|B]$");
-        private static Regex LongRegex = new Regex("^[-+]?[0-9]+[l|L]$");
-        private static Regex ShortRegex = new Regex("^[-+]?[0-9]+[s|S]$");
-        private static Regex IntRegex = new Regex("^[-+]?[0-9]+$");*/
         private static Regex DecimalRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+$");
 
         internal static Regex DoubleRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+[d|D]$");
@@ -53,7 +46,7 @@ namespace OrangeNBT.NBT.IO
             {
                 char _c = json[i];
 
-                if (_c == '"')
+                if (_c == '"' || _c == '\'')
                 {
                     if (IsEscaped(json, i))
                     {
@@ -324,7 +317,7 @@ namespace OrangeNBT.NBT.IO
             {
                 char c = json[i];
 
-                if (c == '"')
+                if (c == '"' || c == '\'')
                 {
                     if (IsEscaped(json, i))
                     {
@@ -454,7 +447,7 @@ namespace OrangeNBT.NBT.IO
             {
                 char c = json[i];
 
-                if (c == '"')
+                if (c == '"' || c == '\'')
                 {
                     if (!IsEscaped(json, i))
                     {
@@ -503,11 +496,7 @@ namespace OrangeNBT.NBT.IO
             int index = 0;
             foreach (string key in tag.Keys)
             {
-                //sb.Append(ops.KeyQuotationMark);
-                //sb.Append(key.Replace("\"", "\\\\\""));
-                //sb.Append(ops.KeyQuotationMark);
                 sb.Append(ops.GetKeyText(key));
-                sb.Append(':');
                 sb.Append(GetJsonValue(tag[key], ops));
 
                 if (tag.Count - 1 != index)

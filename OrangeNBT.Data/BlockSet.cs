@@ -2,6 +2,7 @@
 using OrangeNBT.NBT;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OrangeNBT.Data
 {
@@ -15,8 +16,18 @@ namespace OrangeNBT.Data
 		public int Metadata => _systemId;
 		public int RuntimeId => _systemId;
 
-		private IDictionary<string, string> _properties = new Dictionary<string, string>();
+		private IDictionary<string, string> _properties;
 		public IDictionary<string, string> Properties => _properties;
+
+		public bool EnableMetadata
+		{
+			get { return _properties == null; }
+		}
+
+		public bool HasProperty
+		{
+			get { return !EnableMetadata && _properties.Count > 0; }
+		}
 
 		public string Name
 		{
@@ -41,7 +52,11 @@ namespace OrangeNBT.Data
 		public BlockSet(IBlock block)
 		{
 			if (block != null)
+			{
 				_block = block;
+				_properties = CloneDictionary(_block.DefaultBlockSet.Properties);
+				_systemId = _block.GetRuntimeId(_properties);
+			}
 		}
 
 		public BlockSet(IBlock block, int metadata)
@@ -107,6 +122,9 @@ namespace OrangeNBT.Data
 
 		internal static IDictionary<string, string> CloneDictionary(IDictionary<string, string> input)
 		{
+			if (input == null)
+				return null;
+
 			Dictionary<string, string> r = new Dictionary<string, string>(input.Count);
 			foreach(string key in input.Keys)
 			{
@@ -123,6 +141,7 @@ namespace OrangeNBT.Data
 				return false;
 			if (p1.Count != p2.Count)
 				return false;
+
 			foreach (string key in p1.Keys)
 			{
 				if (!p2.ContainsKey(key))

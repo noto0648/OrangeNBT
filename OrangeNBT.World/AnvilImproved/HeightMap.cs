@@ -11,19 +11,23 @@ namespace OrangeNBT.World.AnvilImproved
 
 		private DenseArray _array;
 
+		public int this[int index]
+		{
+			get { return _array[index]; }
+			set { _array[index] = value; }
+		}
+
 		public HeightMap(string name)
 		{
 			_name = name;
-			_array = new DenseArray(9, 36);
+			_array = new DenseArray(9, 256);
 		}
 
 		public HeightMap(string name, long[] longArray)
 		{
 			_name = name;
-			//_data = new long[36];
-			_array = new DenseArray(longArray.Length * 64 / BasicSize, longArray.Length);
+			_array = new DenseArray(longArray.Length * 64 / BasicSize, 256);
 		}
-
 
 		public TagLongArray BuildTag()
 		{

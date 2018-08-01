@@ -4,7 +4,7 @@
     {
 		private readonly int _bitsPerBlock;
 		private long[] _data;
-		private readonly uint _mask;
+		private readonly ulong _mask;
 
 		public long[] RawArray => _data;
 
@@ -19,10 +19,11 @@
 			get { return _data.Length * 64 / _bitsPerBlock; }
 		}
 
-		public DenseArray(int bitsPerBlock, int size)
+		public DenseArray(int elementPerBits, int size)
 		{
-			_bitsPerBlock = bitsPerBlock;
-			_data = new long[size];
+			_bitsPerBlock = elementPerBits;
+			int arySize = elementPerBits * size / 64;
+			_data = new long[arySize];
 			_mask = (uint)((1 << _bitsPerBlock) - 1);
 		}
 
@@ -57,14 +58,15 @@
 			int startOffset = (index * _bitsPerBlock) % 64;
 			int endLong = ((index + 1) * _bitsPerBlock - 1) / 64;
 
-			uint nval = (uint)val;
+			ulong nval = (ulong)val;
 			nval &= _mask;
-
-			_data[startLong] = _data[startLong] & ~(_bitsPerBlock << startOffset) | ((long)nval &_mask) << startOffset;
+			_data[startLong] = (long)((ulong)_data[startLong] & ~(_mask << startOffset) | (nval & _mask) << startOffset);
 
 			if (startLong != endLong)
 			{
-				_data[endLong] = (nval >> (64 - startOffset));
+				int endOffset = 64 - startOffset;
+				int sat = _bitsPerBlock - endOffset;
+				_data[endLong] = (long)(((ulong)_data[endLong] >> sat << sat) | (nval & _mask) >> endOffset);
 			}
 		}
 	}

@@ -162,7 +162,7 @@ namespace OrangeNBT.NBT
         public override bool Equals(object obj)
         {
             TagCompound tag = obj as TagCompound;
-            if (tag == null || tag.Count != this.Count) return false;
+            if (tag == null || tag.Count != Count) return false;
             foreach(string key in tag.Keys)
             {
                 if (!ContainsKey(key) || !this[key].Equals(tag[key]))
