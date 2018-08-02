@@ -59,7 +59,12 @@ namespace OrangeNBT.Data.Format
 
 			public IEnumerator<TagCompound> GetEnumerator()
 			{
-				return (IEnumerator<TagCompound>)_entities.GetEnumerator();
+				foreach(TagBase t in _entities)
+				{
+					TagCompound c = t as TagCompound;
+					if (c != null)
+						yield return t as TagCompound;
+				}
 			}
 
 			public IEnumerable<TagCompound> GetWithin(Cuboid area)
