@@ -110,7 +110,7 @@ namespace OrangeNBT.Data.Format
 
         public TagCompound BuildTag()
         {
-            return new TagCompound("Schematic")
+			TagCompound t = new TagCompound("Schematic")
             {
                 new TagShort("Width", (short)_width),
                 new TagShort("Height", (short)_height),
@@ -118,9 +118,14 @@ namespace OrangeNBT.Data.Format
                 new TagString("Materials", _materials),
                 new TagByteArray("Blocks", _blocks),
                 new TagByteArray("Data", _metadata),
-                _tileEntities,
-                ((EntityCollection)_entities).BuildTag()
             };
+
+			if (_tileEntities != null)
+				t.Add(_tileEntities);
+			if (_entities != null)
+				t.Add(((EntityCollection)_entities).BuildTag());
+
+			return t;
         }
 
         public static Schematic FromNBT(TagCompound root)
