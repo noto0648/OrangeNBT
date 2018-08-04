@@ -31,7 +31,7 @@ namespace OrangeNBT.World.Anvil
 		{
 			foreach (AnvilDimension d in _dimensions.Values)
 			{
-				d.Save(version);
+				d.Save();
 			}
 		}
 

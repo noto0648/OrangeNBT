@@ -11,7 +11,7 @@ namespace OrangeNBT.World.AnvilImproved
 	public class AnvilChunkImproved : AnvilChunk
 	{
 		private const int BorderVersion = 1500;
-		public static int MinimumVersion = 1519;
+		public static readonly int MinimumVersion = 1519;
 
 		private static readonly string[] ListOfList = new string[] { "LiquidTicks", "Lights", "LiquidsToBeTicked", "ToBeTicked", "PostProcessing" };
 		private ChunkStatus _status = ChunkStatus.Empty;
