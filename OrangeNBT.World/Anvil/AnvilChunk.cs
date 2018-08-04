@@ -29,6 +29,8 @@ namespace OrangeNBT.World.Anvil
         public bool IsModified { get { return _isModified; } set { _isModified = value; } }
         public ChunkCoord Coord { get { return _coord; } }
 
+		public virtual int DataVersion { get; set; } = 0;
+
 		protected readonly AnvilChunkManager _manager;
 
         public AnvilChunk(AnvilChunkManager manager, ChunkCoord coord)
@@ -193,12 +195,17 @@ namespace OrangeNBT.World.Anvil
              */
             if (compound == null || !compound.ContainsKey("Level"))
                 return null;
+
             TagCompound level = compound["Level"] as TagCompound;
             int cx = level.GetInt("xPos");
             int cy = level.GetInt("zPos");
             AnvilChunk c = new AnvilChunk(manager, new ChunkCoord(cx, cy));
 
-            c._heights = level.GetIntArray("HeightMap");
+			if (compound.ContainsKey("DataVersion"))
+			{
+				c.DataVersion = compound.GetInt("DataVersion");
+			}
+			c._heights = level.GetIntArray("HeightMap");
 			bool isTerrainPopulated= level.GetBool("TerrainPopulated");
 			bool isLightPopulated = level.GetBool("LightPopulated");
 
@@ -252,11 +259,11 @@ namespace OrangeNBT.World.Anvil
             return c;
         }
 
-        public void Save(int version = 0)
+        public void Save()
         {
             if (!_isModified) return;
 
-            _manager.SaveChunk(this, version);
+            _manager.SaveChunk(this);
             _isModified = false;
         }
 

@@ -111,21 +111,21 @@ namespace OrangeNBT.World.Anvil
             return AnvilChunkImproved.Load(this, chunkTag);
         }
 
-        internal void Save(int version)
+        internal void Save()
         {
             foreach(IChunk chunk in _cache)
             {
                 if (!chunk.IsModified) continue;
-                SaveChunk((AnvilChunk)chunk, version);
+                SaveChunk((AnvilChunk)chunk);
                 chunk.IsModified = false;
             }
             
         }
 
-        internal void SaveChunk(AnvilChunk chunk, int version)
+        internal void SaveChunk(AnvilChunk chunk)
         {
             RegionFile f = FetchRegion(chunk.Coord.RegionCoord);
-            TagCompound chunkTag = chunk.BuildTag(version);
+            TagCompound chunkTag = chunk.BuildTag();
             using (Stream stream = f.WriteChunk(new ChunkCoord(chunk.Coord.X & 31, chunk.Coord.Z & 31)))
             {
                 NBTFile.ToStream(stream, chunkTag);

@@ -11,8 +11,12 @@ namespace OrangeNBT.World.AnvilImproved
 	public class AnvilChunkImproved : AnvilChunk
 	{
 		private const int BorderVersion = 1500;
+		public static int MinimumVersion = 1519;
+
 		private static readonly string[] ListOfList = new string[] { "LiquidTicks", "Lights", "LiquidsToBeTicked", "ToBeTicked", "PostProcessing" };
 		private ChunkStatus _status = ChunkStatus.Empty;
+		private int _dataVersion = MinimumVersion;
+		public override int DataVersion { get { return _dataVersion; } set { _dataVersion = value; } }
 
 		private Dictionary<string, HeightMap> _heightMaps;
 		public Dictionary<string, HeightMap> HeightMaps => _heightMaps;
@@ -46,6 +50,11 @@ namespace OrangeNBT.World.AnvilImproved
 			int cx = level.GetInt("xPos");
 			int cy = level.GetInt("zPos");
 			AnvilChunkImproved c = new AnvilChunkImproved(manager, new ChunkCoord(cx, cy));
+
+			if (compound.ContainsKey("DataVersion"))
+			{
+				c._dataVersion = compound.GetInt("DataVersion");
+			}
 
 			c._status = ChunkStatusHelper.Parse(level.GetString("Status"));
 			//c.InhabitedTime = tag.GetLong("InhabitedTime");
@@ -115,12 +124,8 @@ namespace OrangeNBT.World.AnvilImproved
 			return c;
 		}
 
-		public override TagCompound BuildTag(int version = 0)
+		public override TagCompound BuildTag()
 		{
-			if (version < BorderVersion)
-			{
-				return base.BuildTag(version);
-			}
 			TagList tagSections = GenSectionsTag();
 			TagList tiles = GenTileEntitiesTag();
 			TagCompound level = new TagCompound("Level")
@@ -164,7 +169,7 @@ namespace OrangeNBT.World.AnvilImproved
 
 			return new TagCompound() {
 
-				new TagInt("DataVersion", version),
+				new TagInt("DataVersion", _dataVersion),
 				level
 			};
 		}

@@ -29,9 +29,9 @@ namespace OrangeNBT.World.Anvil
             _entities = new AnvilEntityCollection(_chunk);
         }
 
-		public override void Save(int version)
+		public override void Save()
         {
-            _chunk.Save(version);
+            _chunk.Save();
         }
 
         public override void Dispose()
