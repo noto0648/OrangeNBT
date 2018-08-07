@@ -28,7 +28,13 @@ namespace OrangeNBT.Data.Anvil.Helper
 			}
 			else if((args.Length & 1) == 0)
 			{
-				return world.SetBlock(x, y, z, new BlockSet(block, PropertyConverter.From(args)));
+				Dictionary<string, string> ps1 = PropertyConverter.From(args);
+				foreach(string key in block.DefaultBlockSet.Properties.Keys)
+				{
+					if (!ps1.ContainsKey(key))
+						ps1.Add(key, block.DefaultBlockSet.Properties[key]);
+				}
+				return world.SetBlock(x, y, z, new BlockSet(block, ps1));
 			}
 			return world.SetBlock(x, y, z, block.DefaultBlockSet);
 		}

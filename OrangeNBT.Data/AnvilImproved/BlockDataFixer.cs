@@ -14,6 +14,10 @@ namespace OrangeNBT.Data.AnvilImproved
 	{
 		private static Dictionary<FixedBlock, FixedBlock> _fixedBlockMap = new Dictionary<FixedBlock, FixedBlock>();
 
+		public static Dictionary<FixedBlock, FixedBlock> ConvertDictionary => _fixedBlockMap;
+
+		public static event EventHandler<EventArgsDataFixer> DataFix;
+
 		static BlockDataFixer()
 		{
 			#region
@@ -1702,6 +1706,7 @@ namespace OrangeNBT.Data.AnvilImproved
 			}
 		}
 
+
 		public static BlockSet ConvertNewSet(BlockSet old)
 		{
 
@@ -1713,7 +1718,13 @@ namespace OrangeNBT.Data.AnvilImproved
 			FixedBlock target = new FixedBlock(old.Name, (Dictionary<string,string>)oldProps);
 			string name = null;
 			Dictionary<string, string> ps = null;
+			EventArgsDataFixer args = new EventArgsDataFixer() { Properties = (Dictionary<string, string>)oldProps, Name = old.Name, Metadata = old.Metadata };
+			DataFix?.Invoke(null, args);
 
+			if (args.NewBlock != null && !args.Cancel)
+			{
+				return args.NewBlock;
+			}
 
 			if (_fixedBlockMap.ContainsKey(target))
 			{
@@ -1737,7 +1748,7 @@ namespace OrangeNBT.Data.AnvilImproved
 			return AnvilImprovedDataProvider.Instance.GetBlock("minecraft:air").DefaultBlockSet;
 		}
 
-		private class FixedBlock
+		public class FixedBlock
 		{
 			public string Name { get; set; }
 			public Dictionary<string, string> Properties { get; set; }
@@ -1782,4 +1793,15 @@ namespace OrangeNBT.Data.AnvilImproved
 			}
 		}
 	}
+
+	public class EventArgsDataFixer : EventArgs
+	{
+		public string Name { get; internal set; }
+		public int Metadata { get; internal set; }
+		public Dictionary<string, string> Properties { get; internal set; }
+
+		public BlockSet NewBlock { get; set; }
+		public bool Cancel { get; set; }
+	}
+
 }
