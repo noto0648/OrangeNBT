@@ -2,6 +2,7 @@
 using OrangeNBT.Helper;
 using OrangeNBT.NBT;
 using System;
+using System.Diagnostics;
 
 namespace OrangeNBT.Data.Format
 {
@@ -37,6 +38,10 @@ namespace OrangeNBT.Data.Format
 		
 		public BlockSet GetBlock(int x, int y, int z)
 		{
+			if(AnvilDataProvider.Instance.GetBlock(GetBlockId(x, y, z))==null)
+			{
+				Debug.WriteLine("Skipped:" + GetBlockId(x, y, z));
+			}
 			return new BlockSet(AnvilDataProvider.Instance.GetBlock(GetBlockId(x, y, z)), GetBlockData(x, y, z));
 		}
 

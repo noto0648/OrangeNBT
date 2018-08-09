@@ -1696,6 +1696,29 @@ namespace OrangeNBT.Data.AnvilImproved
 			Add(new FixedBlock("minecraft:structure_block", PropertyConverter.From("mode", "corner")), new FixedBlock("minecraft:structure_block", PropertyConverter.From("mode", "corner")));
 
 			#endregion
+			DataFix += InternalDataFixer;
+		}
+
+		private static void InternalDataFixer(object sender, EventArgsDataFixer e)
+		{
+			if (e.Name == "minecraft:yellow_flower")
+			{
+				if (e.Properties == null || !e.Properties.ContainsKey("type"))
+				{
+					if (e.Properties == null)
+						e.Properties = new Dictionary<string, string>();
+					e.Properties.Add("type", "dandelion");
+				}
+				return;
+			}
+			if (e.Name.Contains("stairs"))
+			{
+				if (!e.Properties.ContainsKey("shape"))
+				{
+					e.Properties.Add("shape", "straight");
+				}
+				return;
+			}
 		}
 
 		private static void Add(FixedBlock result, params FixedBlock[] oldBlocks)
@@ -1707,6 +1730,7 @@ namespace OrangeNBT.Data.AnvilImproved
 		}
 
 
+
 		public static BlockSet ConvertNewSet(BlockSet old)
 		{
 
@@ -1714,7 +1738,9 @@ namespace OrangeNBT.Data.AnvilImproved
 				return old;
 			IBlock oldBlock = AnvilDataProvider.Instance.GetBlock(old.Name);
 			IDictionary<string, string> oldProps = BlockSet.CloneDictionary(oldBlock.GetProperties(old.Metadata));
-			
+			if (oldProps != null && oldProps.Count == 0)
+				oldProps = null;
+
 			FixedBlock target = new FixedBlock(old.Name, (Dictionary<string,string>)oldProps);
 			string name = null;
 			Dictionary<string, string> ps = null;
@@ -1725,12 +1751,32 @@ namespace OrangeNBT.Data.AnvilImproved
 			{
 				return args.NewBlock;
 			}
-
+			else
+			{
+				target.Name = args.Name;
+				target.Properties = args.Properties;
+			}
 			if (_fixedBlockMap.ContainsKey(target))
 			{
 				FixedBlock r = _fixedBlockMap[target];
 				name = r.Name;
-				ps = r.Properties;
+				IBlock blk = AnvilImprovedDataProvider.Instance.GetBlock(name);
+				ps = (Dictionary<string, string>)BlockSet.CloneDictionary(blk.DefaultBlockSet.Properties);
+				if (r.Properties != null)
+				{
+					foreach (string key in r.Properties.Keys)
+					{
+						if (ps.ContainsKey(key))
+							ps[key] = r.Properties[key];
+						else
+							ps.Add(key, r.Properties[key]);
+					}
+				}
+			}
+			else if (old.Name != "minecraft:air")
+			{
+				Debug.WriteLine(old.Name);
+				//throw new Exception();
 			}
 
 			if (name == null)
@@ -1756,9 +1802,10 @@ namespace OrangeNBT.Data.AnvilImproved
 			public FixedBlock(string name, Dictionary<string,string> properties = null)
 			{
 				Name = name;
-				if (properties != null && properties.Count == 0)
+				if (properties == null || properties.Count == 0)
 					properties = null;
-				Properties = properties;
+				else
+					Properties = properties;
 			}
 
 			public override int GetHashCode()
@@ -1789,7 +1836,7 @@ namespace OrangeNBT.Data.AnvilImproved
 					}
 					s.Append(")");
 				}
-				return string.Format("{\"{0}\"{1}}", Name, s);
+				return string.Format("(\"{0}\"{1})", Name, s);
 			}
 		}
 	}
