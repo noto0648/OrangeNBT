@@ -552,7 +552,7 @@ namespace OrangeNBT.NBT.IO
             }
             if (tag.TagType == TagType.Double)
             {
-                return ((TagFloat)tag).Value + ops.GetDigit(TagType.Float);
+                return ((TagDouble)tag).Value + ops.GetDigit(TagType.Double);
             }
             if (tag.TagType == TagType.String)
             {

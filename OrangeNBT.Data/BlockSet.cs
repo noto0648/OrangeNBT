@@ -46,7 +46,7 @@ namespace OrangeNBT.Data
 		{
 			_block = blockSet.Block;
 			_systemId = blockSet._systemId;
-			_properties = CloneDictionary(blockSet.Properties);
+			_properties = CloneProperties(blockSet.Properties);
 		}
 
 		public BlockSet(IBlock block)
@@ -54,7 +54,7 @@ namespace OrangeNBT.Data
 			if (block != null)
 			{
 				_block = block;
-				_properties = CloneDictionary(_block.DefaultBlockSet.Properties);
+				_properties = CloneProperties(_block.DefaultBlockSet.Properties);
 				_systemId = _block.GetRuntimeId(_properties);
 			}
 		}
@@ -120,7 +120,7 @@ namespace OrangeNBT.Data
 			return new BlockSet(this);
 		}
 
-		internal static IDictionary<string, string> CloneDictionary(IDictionary<string, string> input)
+		public static IDictionary<string, string> CloneProperties(IDictionary<string, string> input)
 		{
 			if (input == null)
 				return null;
@@ -133,7 +133,7 @@ namespace OrangeNBT.Data
 			return r;
 		}
 
-		internal static bool EqualsProperties(IDictionary<string, string> p1, IDictionary<string, string> p2)
+		public static bool EqualsProperties(IDictionary<string, string> p1, IDictionary<string, string> p2)
 		{
 			if (p1 == null && p2 == null)
 				return true;

@@ -1737,7 +1737,7 @@ namespace OrangeNBT.Data.AnvilImproved
 			if (!old.EnableMetadata)
 				return old;
 			IBlock oldBlock = AnvilDataProvider.Instance.GetBlock(old.Name);
-			IDictionary<string, string> oldProps = BlockSet.CloneDictionary(oldBlock.GetProperties(old.Metadata));
+			IDictionary<string, string> oldProps = BlockSet.CloneProperties(oldBlock.GetProperties(old.Metadata));
 			if (oldProps != null && oldProps.Count == 0)
 				oldProps = null;
 
@@ -1761,7 +1761,7 @@ namespace OrangeNBT.Data.AnvilImproved
 				FixedBlock r = _fixedBlockMap[target];
 				name = r.Name;
 				IBlock blk = AnvilImprovedDataProvider.Instance.GetBlock(name);
-				ps = (Dictionary<string, string>)BlockSet.CloneDictionary(blk.DefaultBlockSet.Properties);
+				ps = (Dictionary<string, string>)BlockSet.CloneProperties(blk.DefaultBlockSet.Properties);
 				if (r.Properties != null)
 				{
 					foreach (string key in r.Properties.Keys)
