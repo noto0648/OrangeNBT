@@ -8,10 +8,10 @@ namespace OrangeNBT.NBT.IO
     class NBTJsonSerializerFizzy
     {
         private static Regex ListRegex = new Regex("\\[[-+\\d|,\\s]+\\]");
-        private static Regex DecimalRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+$");
+        private static Regex DecimalRegex = new Regex("^[-+]?([0-9]+\\.?|[0-9]*\\.[0-9]+)([eE][-+]?[0-9]+)?$");
 
-        internal static Regex DoubleRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+[d|D]$");
-        internal static Regex SingleRegex = new Regex("^[-+]?[0-9]*\\.?[0-9]+[f|F]$");
+        internal static Regex DoubleRegex = new Regex("^[-+]?([0-9]+\\.?|[0-9]*\\.[0-9]+)([eE][-+]?[0-9]+)?[d|D]$");
+        internal static Regex SingleRegex = new Regex("^[-+]?([0-9]+\\.?|[0-9]*\\.[0-9]+)([eE][-+]?[0-9]+)?[f|F]$");
         internal static Regex ByteRegex = new Regex("^[-+]?[0-9]+[b|B]$");
         internal static Regex LongRegex = new Regex("^[-+]?[0-9]+[l|L]$");
         internal static Regex ShortRegex = new Regex("^[-+]?[0-9]+[s|S]$");
@@ -556,7 +556,7 @@ namespace OrangeNBT.NBT.IO
             }
             if (tag.TagType == TagType.String)
             {
-                return ops.Quotation + ops.EscapeString(((TagString)tag).Value) + ops.Quotation;
+                return ops.Quotation + ops.EscapeString(((TagString)tag).Value, ops.Quotation) + ops.Quotation;
             }
             if (tag.TagType == TagType.ByteArray)
             {

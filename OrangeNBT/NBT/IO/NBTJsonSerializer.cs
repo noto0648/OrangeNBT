@@ -83,22 +83,22 @@ namespace OrangeNBT.NBT.IO
             {
                 if (NBTJsonSerializerFizzy.SingleRegex.IsMatch(target))
                 {
-                    return new TagFloat(float.Parse(target.Substring(0, target.Length)));
+                    return new TagFloat(float.Parse(target.Substring(0, target.Length - 1)));
                 }
 
                 if (NBTJsonSerializerFizzy.ByteRegex.IsMatch(target))
                 {
-                    return new TagByte(byte.Parse(target.Substring(0, target.Length)));
+                    return new TagByte(byte.Parse(target.Substring(0, target.Length - 1)));
                 }
 
                 if (NBTJsonSerializerFizzy.LongRegex.IsMatch(target))
                 {
-                    return new TagLong(long.Parse(target.Substring(0, target.Length)));
+                    return new TagLong(long.Parse(target.Substring(0, target.Length - 1)));
                 }
 
                 if (NBTJsonSerializerFizzy.ShortRegex.IsMatch(target))
                 {
-                    return new TagShort(short.Parse(target.Substring(0, target.Length)));
+                    return new TagShort(short.Parse(target.Substring(0, target.Length - 1)));
                 }
 
                 if (NBTJsonSerializerFizzy.IntRegex.IsMatch(target))
@@ -108,7 +108,7 @@ namespace OrangeNBT.NBT.IO
 
                 if (NBTJsonSerializerFizzy.DoubleRegex.IsMatch(target))
                 {
-                    return new TagDouble(double.Parse(target.Substring(0, target.Length)));
+                    return new TagDouble(double.Parse(target.Substring(0, target.Length - 1)));
                 }
 
                 if (NBTJsonSerializerFizzy.MinorityRegex.IsMatch(target))
@@ -162,7 +162,7 @@ namespace OrangeNBT.NBT.IO
                         if (sb == null)
                         {
                             //sb = new StringBuilder(_jsonText.SubstringWithJava(index, _jsonCursor - 1));
-                            sb = new StringBuilder(_jsonText.Substring(index, _jsonCursor - index));
+                            sb = new StringBuilder(_jsonText.Substring(index, _jsonCursor - index - 1));
 
                         }
 
@@ -172,7 +172,7 @@ namespace OrangeNBT.NBT.IO
                     if (c0 == '"')
                     {
                         //return sb == null ? _jsonText.SubstringWithJava(index, _jsonCursor - 1) : sb.ToString();
-                        return sb == null ? _jsonText.Substring(index, _jsonCursor - index) : sb.ToString();
+                        return sb == null ? _jsonText.Substring(index, _jsonCursor - index - 1) : sb.ToString();
 
                     }
                 }
@@ -270,14 +270,14 @@ namespace OrangeNBT.NBT.IO
             else
             {
                 TagList nbttaglist = new TagList();
-                TagType baseTagType = TagType.Byte;
+                TagType baseTagType = TagType.End;
 
                 while (JsonAt() != ']')
                 {
                     TagBase TagBase = ExtractValue();
                     TagType tagtype = TagBase.TagType;
 
-                    if (baseTagType < 0)
+                    if (baseTagType <= 0)
                     {
                         baseTagType = tagtype;
                     }

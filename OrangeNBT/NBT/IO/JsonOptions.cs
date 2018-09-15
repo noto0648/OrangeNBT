@@ -5,7 +5,10 @@
         private static JsonOptions _default = new JsonOptions();
         public static JsonOptions Default { get { return _default; } }
 
-        private string _quotation = "\"";
+		private string _keyQuotation = "\"";
+		public string KeyQuotation { get { return _keyQuotation; } set { _keyQuotation = value; } }
+
+		private string _quotation = "\"";
         public string Quotation { get { return _quotation; } set { _quotation = value; } }
 
         private readonly string[] _digits = new string[] { "", "b", "s", "", "l", "f", "d", "", "", "", "", "", "" };
@@ -24,18 +27,20 @@
 
         internal string GetKeyText(string name)
         {
-            return string.Format("{0}{1}{0}:", _quotation, EscapeString(name));
+            return string.Format("{0}{1}{0}:", _quotation, EscapeString(name, _keyQuotation));
         }
 
-        internal string EscapeString(string str)
+        internal string EscapeString(string str, string quote)
         {
             if (string.IsNullOrEmpty(str))
                 return string.Empty;
-            str = str.Replace("\\", "\\\\");
 
-            if (str.Contains(_quotation))
+			if(_escape)
+				str = str.Replace("\\", "\\\\");
+
+            if (!string.IsNullOrEmpty(quote) && str.Contains(quote))
             {
-                str = str.Replace(_quotation, "\\" + _quotation);
+                str = str.Replace(quote, "\\" + quote);
             }
 
             return str;
