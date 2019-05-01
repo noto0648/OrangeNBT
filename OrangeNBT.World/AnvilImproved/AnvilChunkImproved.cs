@@ -149,13 +149,13 @@ namespace OrangeNBT.World.AnvilImproved
 
 			if (_carvingMaskAir != null && _carvingMaskAir.Length > 0)
 			{
-				if (level.ContainsKey("CarvingMasks"))
+				if (!level.ContainsKey("CarvingMasks"))
 					level.Add(new TagCompound("CarvingMasks"));
 				((TagCompound)level["CarvingMasks"]).Add("AIR", _carvingMaskAir);
 			}
 			if (_carvingMaskLiquid != null && _carvingMaskLiquid.Length > 0)
 			{
-				if (level.ContainsKey("CarvingMasks"))
+				if (!level.ContainsKey("CarvingMasks"))
 					level.Add(new TagCompound("CarvingMasks"));
 				((TagCompound)level["CarvingMasks"]).Add("LIQUID", _carvingMaskLiquid);
 			}
